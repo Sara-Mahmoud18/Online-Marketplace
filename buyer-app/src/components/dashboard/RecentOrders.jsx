@@ -1,16 +1,10 @@
 import React from 'react';
 
-const RecentOrders = ({ orders, addDemoOrder }) => {
+const RecentOrders = ({ orders}) => {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
-        <button
-          onClick={addDemoOrder}
-          className="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition text-sm"
-        >
-          + Add Demo Order
-        </button>
       </div>
       {orders.length === 0 ? (
         <p className="text-gray-500 text-center py-8">No orders yet. Click "Add Demo Order" to test!</p>

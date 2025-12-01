@@ -3,7 +3,7 @@ import StatCard from './StatCard';
 import RecentOrders from './RecentOrders';
 import { Package, Clock, TrendingUp } from 'lucide-react';
 
-const DashboardView = ({ orders, categories, addDemoOrder }) => {
+const DashboardView = ({ orders}) => {
   const activeOrders = orders.filter(o => o.status !== 'delivered').length;
 
   return (
@@ -16,7 +16,7 @@ const DashboardView = ({ orders, categories, addDemoOrder }) => {
           icon={<Clock className="w-12 h-12 text-orange-600" />}
         />
       </div>
-      <RecentOrders orders={orders} addDemoOrder={addDemoOrder} />
+      <RecentOrders orders={orders}/>
     </div>
   );
 };

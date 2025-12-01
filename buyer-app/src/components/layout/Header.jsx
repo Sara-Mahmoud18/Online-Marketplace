@@ -12,9 +12,6 @@ const Header = () => {
             <p className="text-sm text-gray-600">Manage your marketplace</p>
           </div>
         </div>
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">Demo Mode</span>
-        </div>
       </div>
     </header>
   );
