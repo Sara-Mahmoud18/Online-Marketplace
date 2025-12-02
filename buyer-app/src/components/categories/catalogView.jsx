@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ProductDetailPage = ({ productId, products, onBack }) => { 
+const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHandler }) => {
     const product = products.find(p => p.id === productId);
 
     if (!product) {
@@ -10,16 +10,56 @@ const ProductDetailPage = ({ productId, products, onBack }) => {
             </div>
         );
     }
+    const [rating, setRating] = useState(product.userRating || 0);
+    const [comment, setComment] = useState('');
+    const [comments, setComments] = useState(product.comments || []);
+    const [quantity, setQuantity] = useState(1);
 
     const sum = product.sum_rating || 0;
     const count = product.number_rating || 0;
     const averageRating = count === 0 ? 0 : sum / count;
 
+    const handleRatingSubmit = () => {
+        alert(`Rating submitted: ${rating}`);
+        // Backend
+    };
+
+    const handleCommentSubmit = () => {
+        if (comment.trim() === '') return;
+        const newComment = { text: comment, date: new Date().toLocaleString() };
+        setComments(prev => [...prev, newComment]);
+        // Backend
+        setComment('');
+    };
+
+
+    const onAddToCart = () => {
+        if (quantity <= product.quantity) {
+            const newCartItem = {
+                S_ID: product.S_ID,
+                B_ID: buyerId,
+                Product: product.name,
+                Status: "pending",
+                totalPrice: product.price * quantity,
+                quantity: quantity
+            };
+
+            if (onAddToCartHandler) {
+                onAddToCartHandler(newCartItem); 
+                alert(`Added ${quantity} x ${product.name} to cart successfully!`);
+            } else {
+                alert("Error: Cart update handler not provided.");
+            }
+        }
+        else alert(`Please choose a quantity number equal to or smaller than the product's quantity (${product.quantity})`);
+
+    };
+
     return (
         <div className="container mx-auto p-4 sm:p-6 bg-gray-50 min-h-screen">
             {onBack && (
-                <button 
-                    onClick={onBack} 
+                <button
+                    onClick={onBack}
                     className="mb-4 text-indigo-600 hover:text-indigo-800 font-semibold flex items-center"
                 >
                     &larr; Back to Categories
@@ -27,37 +67,108 @@ const ProductDetailPage = ({ productId, products, onBack }) => {
             )}
 
             <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-xl overflow-hidden">
+                <div className="grid md:grid-cols-2 gap-8 p-8">
+                    <div className="flex justify-center items-center bg-gray-100 rounded-lg p-4">
+                        <img
+                            src={product.image}
+                            alt={product.name}
+                            className="max-h-96 object-contain rounded-lg shadow-md"
+                        />
+                    </div>
 
-                <div className="p-8 md:flex gap-8">
-                    <div className="md:w-2/3">
-                        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">
-                            {product.name}
-                        </h1>
-                        <div className="flex items-center mb-4">
-                            <span className="ml-2 text-sm font-medium text-gray-600">
-                                {averageRating.toFixed(1)} / 5 ({count} reviews)
-                            </span>
-                        </div>
-                        <p className="text-4xl font-bold text-indigo-700 mb-6">
-                            ${product.price.toFixed(2)}
-                        </p>
-                        <p className="text-gray-700 mb-6 border-b pb-4">
-                            {product.description}
-                        </p>
-                        <div className="space-y-2 text-gray-800">
-                            <p><span className="font-semibold">Quantity:</span> {product.quantity}</p>
-                            <p><span className="font-semibold">Estimated Delivery Time:</span> 
-                                {product.estimated_DT 
-                                    ? new Date(product.estimated_DT).toLocaleDateString() 
-                                    : "N/A"}
+                    <div className="flex flex-col justify-between">
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+                                {product.name}
+                            </h1>
+
+                            <div className="flex items-center mb-4">
+                                <span className="text-yellow-400 text-xl">★</span>
+                                <span className="ml-2 text-sm font-medium text-gray-600">
+                                    {averageRating.toFixed(1)} / 5 ({count} reviews)
+                                </span>
+                            </div>
+
+                            <p className="text-3xl font-bold text-indigo-700 mb-6">
+                                ${product.price.toFixed(2)}
                             </p>
+
+                            <p className="text-gray-700 mb-6 border-b pb-4">
+                                {product.description}
+                            </p>
+
+                            <div className="space-y-2 text-gray-800 mb-6">
+                                <p><span className="font-semibold">Quantity Available:</span> {product.quantity}</p>
+                                <p><span className="font-semibold">Estimated Delivery:</span>
+                                    {product.estimated_DT ? new Date(product.estimated_DT).toLocaleDateString() : "N/A"}
+                                </p>
+                            </div>
                         </div>
+                        <div className="mb-6">
+                            <label className="block text-gray-700 font-semibold mb-2" htmlFor="quantity-input">Quantity:</label>
+                            <input
+                                id="quantity-input"
+                                type="number"
+                                min="1"
+                                max={product.quantity} // Added max attribute for better UX
+                                value={quantity}
+                                onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                                className="w-20 border rounded-lg p-2 text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <button
+                            onClick={onAddToCart} 
+                            className="w-full md:w-auto bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 transition"
+                        >
+                            Add to Cart
+                        </button>
 
                     </div>
                 </div>
 
-            </div>
-        </div>
+                {product.Status === 'delivered' && (
+                    <div>
+                        <div className="mt-8 border-t pt-6 p-4">
+                            <h2 className="text-xl font-bold mb-4">Rate this product</h2>
+                            <div className="flex items-center gap-4 mb-4">
+                                {[1, 2, 3, 4, 5].map(star => (
+                                    <button
+                                        key={star}
+                                        onClick={() => setRating(star)}
+                                        className={`text-2xl ${star <= rating ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-500`}
+                                    >
+                                        ★
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={handleRatingSubmit}
+                                className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition"
+                            >
+                                Submit Rating
+                            </button>
+                        </div>
+
+                        <div className="mt-8 border-t pt-6 p-4">
+                            <h2 className="text-xl font-bold mb-4">Add a Comment</h2>
+                            <textarea
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                placeholder="Leave a comment..."
+                                className="w-full border rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                            <button
+                                onClick={handleCommentSubmit}
+                                className="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+                            >
+                                Add Comment
+                            </button>
+                        </div>
+                    </div>
+                )
+                }
+            </div >
+        </div >
     );
 };
 

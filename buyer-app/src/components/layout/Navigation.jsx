@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Navigation = ({ currentView, setCurrentView }) => {
-  const views = ['dashboard','categories', 'orders', 'flagged'];
+  const views = ['dashboard','categories','cart','orders', 'flagged'];
 
   return (
     <nav className="bg-white border-b border-gray-200">

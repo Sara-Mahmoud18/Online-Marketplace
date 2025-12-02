@@ -4,7 +4,7 @@ import RecentOrders from './RecentOrders';
 import { Package, Clock, TrendingUp } from 'lucide-react';
 
 const DashboardView = ({ orders}) => {
-  const activeOrders = orders.filter(o => o.status !== 'delivered').length;
+  const activeOrders = orders.filter(o => o.Status !== 'delivered').length;
 
   return (
     <div>

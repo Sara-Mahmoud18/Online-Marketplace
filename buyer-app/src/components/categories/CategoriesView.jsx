@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import CategoryCard from './CategoryCard';
 import { Filter, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
+
+
 const CategoriesView = ({ products, viewProductDetail }) => {
   const [search, setSearch] = useState("");
   const [startIndexMap, setStartIndexMap] = useState({});
