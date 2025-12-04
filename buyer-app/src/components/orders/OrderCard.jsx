@@ -12,9 +12,8 @@ const OrderCard = ({ order, flagSeller }) => {
   };
 
   const handleFlagSeller = () => {
-    // We pass the Seller ID (S_ID) to the parent function for flagging
     flagSeller(order.S_ID);
-    console.log("Done");
+    // console.log("Done");
     alert("Seller Flaged successfully");
   };
 
@@ -24,11 +23,24 @@ const OrderCard = ({ order, flagSeller }) => {
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Order #{order.id.slice(-8)}</h3>
           <p className="text-sm text-gray-600 mt-1">Seller: {order.S_ID}</p>
-          <p className="text-sm text-gray-600">Product: {order.Product}</p>
-          <p className="text-sm text-gray-600">Quantity: {order.quantity}</p>
+          <p>Products:</p>
+          <div className="space-y-1 pb-2">
+            {
+              order.Product.map((name, i) => (
+                <p key={`${order.id}-item-${i}`} className="text-sm text-gray-600">
+                  {name} — Qty: {order.quantity[i] ?? "N/A"}
+                </p>
+              ))
+            }
+          </div>
+          <hr className='pb-2'/>
           <p className="text-sm text-gray-600">Total Price: ${order.total_price}</p>
           <p className="text-sm text-gray-600">Created Date: {order.Created_Date}</p>
-          <p className="text-sm text-gray-600">Delivery Date: {order.Delivery_Date}</p>
+          {order.Delivery_Date !== null && (
+            <p className="text-sm text-gray-600">
+              Delivery Date: {order.Delivery_Date}
+            </p>
+          )}
         </div>
         <div className="flex flex-col items-end space-y-4">
           <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(order.Status)}`}>
