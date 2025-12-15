@@ -1,0 +1,57 @@
+buyer
+- FlagS: Array
+- id: ObjectID
+- username: string
+- password: string
+- location: string
+- email: string
+- phone: string
+
+Seller
+- FlagB : Array
+- id: ObjectID
+- username: string
+- password: string
+- location: string
+- email: string
+- phone: string
+
+
+order:
+- id: ObjectID
+- S_ID: sting
+- B_ID: sting
+- Product: arr
+- quantity: arr
+- Status :string
+- total price: int
+- Delivery Date: Date
+- Created Date: Date
+
+
+cart:
+- id: ObjectID
+- S_ID: sting
+- B_ID: sting
+- Product: string
+- Status :string
+- total price: int
+- quantity: int
+
+product:
+- id: ObjectID
+- quantity: int
+- description: string
+- name: string
+- category:string
+- sum_rating:int
+- number_rating: int
+- s_Id: string
+- estimated_DT: Date
+- image : string
+
+comment:
+- text: string
+- id: objectid() string
+- product id: string
+- b_id: string
