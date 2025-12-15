@@ -14,20 +14,19 @@ const OrderCard = ({ order, flagSeller }) => {
   const handleFlagSeller = () => {
     flagSeller(order.S_ID);
     // console.log("Done");
-    alert("Seller Flaged successfully");
   };
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Order #{order.id.slice(-8)}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Order #{order._id.slice(-8)}</h3>
           <p className="text-sm text-gray-600 mt-1">Seller: {order.S_ID}</p>
           <p>Products:</p>
           <div className="space-y-1 pb-2">
             {
               order.Product.map((name, i) => (
-                <p key={`${order.id}-item-${i}`} className="text-sm text-gray-600">
+                <p key={`${order._id}-item-${i}`} className="text-sm text-gray-600">
                   {name} — Qty: {order.quantity[i] ?? "N/A"}
                 </p>
               ))

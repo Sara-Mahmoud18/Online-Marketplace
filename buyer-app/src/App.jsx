@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/layout/Header';
 import Navigation from './components/layout/Navigation';
 import DashboardView from './components/dashboard/DashboardView';
@@ -8,255 +8,43 @@ import FlaggedView from './components/flagged/FlaggedView';
 import ProductDetailPage from './components/categories/catalogView';
 import Cart from './components/cart/cart';
 
-const DUMMY_PRODUCTS_DATA = [
-    {
-        id: 'prod_501',
-        name: "Luxury Smartwatch X1",
-        description: "Premium smartwatch with health tracking and 5-day battery life. Aluminum casing with sapphire glass.",
-        price: 399.99,
-        quantity: 100,
-        category: 'Electronics',
-        sum_rating: 45,
-        number_rating: 10,
-        estimated_DT: '2025-12-10',
-        deliveryTime: "3 days",
-        stock: 100,
-        serviceArea: ["US", "CA", "EU"],
-        Status: "delivered",
-        image: "https://m.media-amazon.com/images/I/71AcGKTe9+L._AC_SL1500_.jpg",
-        S_ID: "SELLER_1001"
-    },
-    {
-        id: 'prod_101',
-        name: "Speaker Set Alpha",
-        description: "Powerful bookshelf speakers with deep bass. Bluetooth 5.0 connectivity.",
-        price: 199.50,
-        quantity: 50,
-        category: 'Electronics',
-        sum_rating: 15,
-        number_rating: 5,
-        estimated_DT: '2025-12-05',
-        deliveryTime: "2 days",
-        stock: 50,
-        serviceArea: ["US", "CA"],
-        image: "https://m.media-amazon.com/images/I/81b1vgAABmL.jpg",
-        S_ID: "SELLER_1002"
-    },
-    {
-        id: 'prod_102',
-        name: "Noise-Cancelling Headphones",
-        description: "Over-ear headphones providing superior audio quality and comfort.",
-        price: 89.99,
-        quantity: 30,
-        category: 'Electronics',
-        sum_rating: 10,
-        number_rating: 3,
-        estimated_DT: '2025-12-06',
-        deliveryTime: "3 days",
-        stock: 30,
-        serviceArea: ["US"],
-        image: "https://tse1.mm.bing.net/th/id/OIP.r72RwXvjipWa97CWwMLxFgHaHa?pid=Api&P=0&h=220",
-        S_ID: "SELLER_1003"
-    },
-    {
-        id: 'prod_601',
-        name: "ssss Smartwatch X1",
-        description: "Premium smartwatch with health tracking and 5-day battery life. Aluminum casing with sapphire glass.",
-        price: 399.99,
-        quantity: 100,
-        category: 'Electronics',
-        sum_rating: 45,
-        number_rating: 10,
-        estimated_DT: '2025-12-10',
-        deliveryTime: "3 days",
-        stock: 100,
-        serviceArea: ["US", "CA", "EU"],
-        image: "https://m.media-amazon.com/images/I/71AcGKTe9+L._AC_SL1500_.jpg",
-        S_ID: "SELLER_1001"
-    },
-    {
-        id: 'prod_701',
-        name: "dddd Speaker",
-        description: "Powerful bookshelf speakers with deep bass. Bluetooth 5.0 connectivity.",
-        price: 199.50,
-        quantity: 50,
-        category: 'Electronics',
-        sum_rating: 15,
-        number_rating: 5,
-        estimated_DT: '2025-12-05',
-        deliveryTime: "2 days",
-        stock: 50,
-        serviceArea: ["US", "CA"],
-        image: "https://m.media-amazon.com/images/I/81b1vgAABmL.jpg",
-        S_ID: "SELLER_1004"
-    },
-    {
-        id: 'prod_201',
-        name: "Organic Cotton T-Shirt",
-        description: "Soft, breathable, and sustainably sourced organic cotton shirt.",
-        price: 29.00,
-        quantity: 400,
-        category: 'Apparel',
-        sum_rating: 40,
-        number_rating: 10,
-        estimated_DT: '2025-12-01',
-        deliveryTime: "1 day",
-        stock: 400,
-        serviceArea: ["EU"],
-        Status: "delivered",
-        image: "https://cdn11.bigcommerce.com/s-405b0/images/stencil/1920w/products/72/16844/2000-gildan-ultra-cotton-t-shirt-white-t-shirt.ca__52550.1654536407.jpg?c=2",
-        S_ID: "SELLER_2001"
-    },
-    {
-        id: 'prod_202',
-        name: "Fleece-Lined Running Jacket",
-        description: "Weather-resistant jacket perfect for cold-weather outdoor activities.",
-        price: 75.99,
-        quantity: 200,
-        category: 'Apparel',
-        sum_rating: 20,
-        number_rating: 5,
-        estimated_DT: '2025-12-04',
-        deliveryTime: "4 days",
-        stock: 200,
-        serviceArea: ["EU", "UK"],
-        image: "https://tse2.mm.bing.net/th/id/OIP.qtkknMSA7bSeLKuU5X1xvAHaJo?pid=Api&h=220&P=0",
-        S_ID: "SELLER_2002"
-    },
-    {
-        id: 'prod_301',
-        name: "Bamboo Cutting Board",
-        description: "Large, durable, and naturally antibacterial bamboo cutting surface.",
-        price: 45.00,
-        quantity: 60,
-        category: 'Home Goods',
-        sum_rating: 60,
-        number_rating: 15,
-        estimated_DT: '2025-12-02',
-        deliveryTime: "2 days",
-        stock: 60,
-        serviceArea: ["US", "MX"],
-        Status: "delivered",
-        image: "https://m.media-amazon.com/images/I/915tZ2+SYxL._AC_.jpg",
-        S_ID: "SELLER_3001"
-    },
-    {
-        id: 'prod_302',
-        name: "Aroma Diffuser",
-        description: "Ultrasonic diffuser with LED lighting and automatic shut-off.",
-        price: 35.00,
-        quantity: 10,
-        category: 'Home Goods',
-        sum_rating: 14,
-        number_rating: 4,
-        estimated_DT: '2025-12-07',
-        deliveryTime: "5 days",
-        stock: 10,
-        serviceArea: ["MX"],
-        Status: "pending",
-        image: "https://m.media-amazon.com/images/I/71AfYTZo4PL._AC_SL1500_.jpg",
-        S_ID: "SELLER_3002"
-    }
-];
-
-const dummyCart = [
-    {
-        S_ID: "SELLER123",
-        Product: "Wireless Headphones",
-        Price: 120,
-        quantity: 3
-    },
-    {
-        S_ID: "SELLER123",
-        Product: "TestP",
-        Price: 10,
-        quantity: 1
-    },
-    {
-        S_ID: "SELLER789",
-        Product: "Gaming Mouse",
-        Price: 45,
-        quantity: 3
-    },
-    {
-        S_ID: "SELLER321",
-        Product: "Mechanical Keyboard",
-        Price: 85,
-        quantity: 3
-    }
-];
-
-const dummyOrders = [
-    {
-        id: "0",
-        S_ID: "SUPP1001",
-        Product: ["Laptop Pro X"],
-        quantity: [1],
-        Status: "Shipped",
-        total_price: 1299,
-        Delivery_Date: "2025-12-15T00:00:00.000Z",
-        Created_Date: "2025-12-01T10:30:00.000Z"
-    },
-    {
-        id: "60a7e0d8a5c3e7b1f8c9d0e2",
-        S_ID: "SUPP1003",
-        Product: ["Wireless Mouse M300"],
-        quantity: [3],
-        Status: "Pending",
-        total_price: 75,
-        Delivery_Date: null,
-        Created_Date: "2025-12-02T08:15:00.000Z"
-    },
-    {
-        id: "2",
-        S_ID: "SUPP1002",
-        Product: ["4K Monitor 27 inch"],
-        quantity: [2],
-        Status: "Delivered",
-        total_price: 600,
-        Delivery_Date: "2025-11-28T00:00:00.000Z",
-        Created_Date: "2025-11-20T14:45:00.000Z"
-    }
-]
-
-const dummyFlaggedSellers = [
-    {
-        "username": "a_smith",
-        "location": "Los Angeles, CA",
-        "email": "asmith@webmail.org",
-        "phone": "555-987-6543"
-    },
-    {
-        "username": "tech_guru",
-        "password": "hashed_password_789",
-        "location": "Austin, TX",
-        "email": "techguru@corp.net",
-        "phone": "555-555-1212"
-    },
-    {
-        "username": "user_2024",
-        "password": "hashed_password_101",
-        "location": "Miami, FL",
-        "email": "user2024@mail.co",
-        "phone": "555-222-3333"
-    },
-    {
-        "username": "beta_boss",
-        "password": "hashed_password_202",
-        "location": "Seattle, WA",
-        "email": "betaboss@test.dev",
-        "phone": "555-444-5555"
-    }
-]
-
-const b_id = "b444";
+const b_id = "b444"; // TODO: Replace with real buyer id from auth
 
 const App = () => {
     const [currentView, setCurrentView] = useState('dashboard');
     const [selectedProductId, setSelectedProductId] = useState(null);
-    const [cart, setCart] = useState(dummyCart);
-    const [orders, setOrders] = useState(dummyOrders);
-    const [flags, setFlag] = useState(dummyFlaggedSellers);
+    const [orders, setOrders] = useState([]);
+    const [flags, setFlag] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [cart, setCart] = useState([]);
+
+    useEffect(() => {
+        fetch('http://localhost:5000/api/products')
+            .then(res => res.json())
+            .then(data => setProducts(data))
+            .catch(err => console.log(err));
+    }, []);
+
+    useEffect(() => {
+        fetch(`http://localhost:5000/api/cart/${b_id}`)
+            .then(res => res.json())
+            .then(data => setCart(data))
+            .catch(err => console.log(err));
+    }, []);
+
+    useEffect(() => {
+        fetch(`http://localhost:5000/api/orders?buyerId=${b_id}`)
+            .then(res => res.json())
+            .then(data => setOrders(data))
+            .catch(err => console.log(err));
+    }, []);
+
+    useEffect(() => {
+        fetch(`http://localhost:5000/api/buyers/${b_id}/flagged-sellers`)
+            .then(res => res.json())
+            .then(data => setFlag(data))
+            .catch(err => console.log(err));
+    }, []);
 
     const handleViewChange = (newView) => {
         if (newView !== 'productDetail') {
@@ -271,56 +59,126 @@ const App = () => {
     };
 
     const onAddToCartHandler = (newCartItem) => {
-        dummyCart.push(newCartItem);
-    }
+        fetch(`http://localhost:5000/api/cart/${b_id}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newCartItem),
+        })
+            .then(res => res.json())
+            .then(data => setCart(data))
+            .catch(err => console.log(err));
+    };
 
-    const getItemId = (item) => item.P_ID ?? `${item.S_ID}-${item.Product}-${item.Price}`;
+    const getItemId = (item) => item._id;
 
     const handleRemoveItem = (itemId) => {
-        setCart((prev) => prev.filter((item) => getItemId(item) !== itemId));
+        fetch(`http://localhost:5000/api/cart/${b_id}/item/${itemId}`, {
+            method: "DELETE",
+        })
+            .then(res => res.json())
+            .then(data => setCart(data))
+            .catch(err => console.log(err));
     };
 
     const handleRemoveSeller = (sellerId) => {
-        setCart((prev) => prev.filter((item) => item.S_ID !== sellerId));
+        fetch(`http://localhost:5000/api/cart/${b_id}/seller/${sellerId}`, {
+            method: "DELETE",
+        })
+            .then(res => res.json())
+            .then(data => setCart(data))
+            .catch(err => console.log(err));
     };
 
-
-    const handleCompleteSellerOrder = (sellerId, sellerItems) => {
+    const handleCompleteOrder = async (sellerId, sellerItems) => {
         const nowISO = new Date().toISOString();
+
+        // 1. Prepare the Data Arrays
         const productsArray = sellerItems.map((item) => item.Product);
         const quantitiesArray = sellerItems.map((item) => Number(item.quantity) || 1);
+
+        // Calculate total price based on the items for this specific seller
         const totalPrice = sellerItems.reduce(
-            (sum, item) => sum + (Number(item.Price) * Number(item.quantity) || 0),
+            (sum, item) => sum + (Number(item.price) * Number(item.quantity) || 0),
             0
         );
 
         const sellerOrder = {
-            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
             S_ID: sellerId,
-            Product: productsArray,          
-            quantity: quantitiesArray,    
-            Status: "Pending",              
+            B_ID: b_id, // Ensure b_id is defined in your component scope
+            Product: productsArray,
+            quantity: quantitiesArray,
+            Status: "Pending",
             total_price: totalPrice,
-            Delivery_Date: null,             
+            Delivery_Date: null,
             Created_Date: nowISO
         };
-        // BACKEND !! REMOVE FROM PRODUCT'S QUANTITY IN PRODUCS COLLECTION
-        setOrders((prev) => [...prev, sellerOrder]);     
-        setCart((prev) => prev.filter((it) => it.S_ID !== sellerId));
 
-        console.log(`Order completed for ${sellerId}:`, sellerOrder);
-    }
+        try {
+            // STEP 1: Create the Order in the database
+            // This will trigger your backend logic to check and decrement stock
+            const orderResponse = await fetch('http://localhost:5000/api/orders', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(sellerOrder)
+            });
 
-    const flagSeller = (S_ID) => {
-        // Backend
-        const newflag = {
-            "username": "test",
-            "location": "t",
-            "email": "t@webmail.org",
-            "phone": "555-55555-5"
-        };
-        setFlag((prev) => [...prev, newflag]);
-        console.log(flags);
+            const orderData = await orderResponse.json();
+
+            if (!orderResponse.ok) {
+                // If the backend returned an error (like "Insufficient stock")
+                throw new Error(orderData.message || "Failed to create order");
+            }
+
+            // STEP 2: Delete items from the Cart database
+            // We use a loop or a bulk delete endpoint. 
+            // Here, we loop through the items for this seller to delete them by ID.
+            fetch(`http://localhost:5000/api/cart/${b_id}/seller/${sellerId}`, {
+                method: "DELETE",
+            })
+                .then(res => res.json())
+                .then(data => setCart(data))
+                .catch(err => console.log(err));
+
+            // STEP 3: Update local UI State
+            // Add the new order to the orders list
+            setOrders(prev => [...prev, orderData]);
+
+            // Remove only the items belonging to this seller from the local cart
+            setCart(prev => prev.filter((it) => it.S_ID !== sellerId));
+
+            alert("Order placed successfully!");
+
+        } catch (err) {
+            console.error("Checkout Error:", err);
+            alert(`Could not complete order: ${err.message}`);
+        }
+    };
+
+    // Flag a seller in backend
+    const flagSeller = (sellerId, reason = "Inappropriate behavior") => {
+        fetch('http://localhost:5000/api/buyers/flag-seller', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ buyerId: b_id, sellerId, reason })
+        })
+            .then(res => {
+                res.json();
+                if (res.status === 200)
+                 alert("Seller flagged successfully");
+                else if (res.status === 220)
+                 alert("You have already flagged this seller"); 
+                 return res;
+            })
+            .then(() => {
+                // Refresh flagged sellers from backend
+                fetch(`http://localhost:5000/api/buyers/${b_id}/flagged-sellers`)
+                    .then(res => res.json())
+                    .then(data => setFlag(data));
+            })
+            .catch(err => console.log(err));
+
     };
 
     const renderView = () => {
@@ -332,37 +190,32 @@ const App = () => {
             case 'categories':
                 return <CategoriesView
                     viewProductDetail={viewProductDetail}
-                    products={DUMMY_PRODUCTS_DATA}
+                    products={products}
                 />;
             case 'flagged':
                 return <FlaggedView
                     FlaggedSellers={flags}
                 />;
-
             case 'productDetail':
                 return (
                     <ProductDetailPage
                         buyerId={b_id}
                         productId={selectedProductId}
-                        products={DUMMY_PRODUCTS_DATA}
-                        onBack={() => handleViewChange('categories')
-                        }
+                        products={products}
+                        onBack={() => handleViewChange('categories')}
                         onAddToCartHandler={onAddToCartHandler}
                     />
                 );
             case 'cart':
                 return (
                     <Cart
-
                         CartArr={cart}
                         onRemoveItem={handleRemoveItem}
                         onRemoveSeller={handleRemoveSeller}
-                        onCompleteSellerOrder={handleCompleteSellerOrder}
+                        onCompleteSellerOrder={handleCompleteOrder}
                         getItemId={getItemId}
-
                     />
                 );
-
             default:
                 return <DashboardView orders={orders} />;
         }

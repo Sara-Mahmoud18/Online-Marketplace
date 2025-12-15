@@ -9,9 +9,9 @@ const CategoryCard = ({ category, products, viewProductDetail }) => {
       <div className="space-y-4">
         {products.map((product, index) => (
           <ProductCard 
-            key={product.id || index}
+            key={product._id || index}
             product={product} 
-            onClick={() => viewProductDetail(product.id)} 
+            onClick={() => viewProductDetail(product._id)} 
           />
         ))}
       </div>

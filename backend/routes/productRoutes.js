@@ -1,0 +1,17 @@
+const express = require("express");
+const router = express.Router();
+
+const {
+  getAllProducts,
+  getProductById,
+  addComment,
+  addRating,
+} = require("../controllers/product");
+
+router.get("/", getAllProducts);
+router.get("/:_id", getProductById);
+
+router.post("/:_id/comment", addComment);
+router.post("/:_id/rate", addRating);
+
+module.exports = router;

@@ -27,7 +27,7 @@ const Cart = ({
   onRemoveItem,
   onRemoveSeller,
   onCompleteSellerOrder,
-  getItemId = (item) => item.P_ID ?? `${item.S_ID}-${item.Product}-${item.Price}`,
+  getItemId = (item) => item.P_ID ?? `${item.S_ID}-${item.Product}-${item.price}`,
 }) => {
   const grouped = groupBySeller(CartArr);
   const sellerIds = Object.keys(grouped);
@@ -45,7 +45,7 @@ const Cart = ({
       {sellerIds.map((sellerId) => {
         const sellerItems = grouped[sellerId];
         const sellerSubtotal = sellerItems.reduce(
-          (sum, item) => sum + (Number(item.Price) * Number(item.quantity) || 0),
+          (sum, item) => sum + (Number(item.price) * Number(item.quantity) || 0),
           0
         );
 
@@ -60,7 +60,7 @@ const Cart = ({
             <div className="divide-y">
               {sellerItems.map((item) => {
                 const itemId = getItemId(item);
-                const total = Number(item.Price) * Number(item.quantity);
+                const total = Number(item.price) * Number(item.quantity);
 
                 return (
                   <div

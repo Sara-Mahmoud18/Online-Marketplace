@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHandler }) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => p._id === productId);
 
     if (!product) {
         return (
@@ -19,17 +19,59 @@ const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHan
     const count = product.number_rating || 0;
     const averageRating = count === 0 ? 0 : sum / count;
 
-    const handleRatingSubmit = () => {
-        alert(`Rating submitted: ${rating}`);
-        // Backend
-    };
+    const handleRatingSubmit = async () => {
+        if (rating === 0) return alert('Please select a rating first');
 
-    const handleCommentSubmit = () => {
-        if (comment.trim() === '') return;
-        const newComment = { text: comment, date: new Date().toLocaleString() };
-        setComments(prev => [...prev, newComment]);
-        // Backend
+        try {
+            const res = await fetch(
+            `http://localhost:5000/api/products/${productId}/rate`,
+            {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                userId: buyerId,
+                rating: rating,
+                }),
+            }
+            );
+
+            const data = await res.json();
+
+            alert('Rating submitted successfully');
+        } catch (error) {
+            console.error('Failed to submit rating', error);
+        }
+        };
+
+
+    const handleCommentSubmit = async () => {
+    if (comment.trim() === '') return;
+
+    try {
+        const res = await fetch(
+        `http://localhost:5000/api/products/${productId}/comment`,
+        {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+            userId: buyerId,
+            text: comment,
+            }),
+        }
+        );
+
+        const data = await res.json();
+
+        setComments(prev => [...prev, data.comment || data]);
+
         setComment('');
+    } catch (error) {
+        console.error('Failed to add comment', error);
+    }
     };
 
 
@@ -39,7 +81,8 @@ const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHan
                 S_ID: product.S_ID,
                 B_ID: buyerId,
                 Product: product.name,
-                Status: "pending",
+                Status: "pending",                
+                price : product.price,
                 totalPrice: product.price * quantity,
                 quantity: quantity
             };

@@ -116,7 +116,7 @@ const CategoriesView = ({ products, viewProductDetail }) => {
                   >
                     {allProducts.map(product => (
                       <div
-                        key={product.id}
+                        key={product._id}
                         className="flex-shrink-0"
                         style={{
                           width: `${100 / allProducts.length}%`,

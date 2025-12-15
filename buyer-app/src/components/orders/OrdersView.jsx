@@ -2,7 +2,7 @@ import React from 'react';
 import OrderCard from './OrderCard';
 import { Package } from 'lucide-react';
 
-const OrdersView = ({ orders, flagSeller}) => {
+const OrdersView = ({ orders, flagSeller }) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -18,6 +18,7 @@ const OrdersView = ({ orders, flagSeller}) => {
         <div className="space-y-4">
           {orders.map(order => (
             <OrderCard
+              key={order._id}
               order={order}
               flagSeller={flagSeller}
             />
