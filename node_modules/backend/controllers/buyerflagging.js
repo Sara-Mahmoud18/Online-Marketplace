@@ -1,4 +1,3 @@
-const Buyer = require('../models/buyerModel');
 const Seller = require('../models/sellerModel');
 
 // Flag a seller (buyer adds {sellerId, reason} to FlagS
@@ -17,11 +16,12 @@ exports.flagSeller = async (req, res) => {
     if (alreadyFlagged) {
       return res.status(220).json({ message: 'You have already flagged this seller' });
     }
-
-    // PUSH: Use 'id' explicitly
+    // console.log(buyerId);
     seller.FlagB.push({ buyerId: buyerId, reason: reason });
-    
-    await seller.save();
+    // console.log(seller.FlagB);
+    // console.log(sellerId);
+    await Seller.updateOne({ id: sellerId }, { $set: { FlagB: seller.FlagB } });
+    // await seller.save();
     res.status(200).json({ message: 'Seller flagged successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });

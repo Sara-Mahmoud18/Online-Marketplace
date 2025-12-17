@@ -1,8 +1,17 @@
 const Product = require("../models/productModel");
-const buyerLocation = "TX"; // This should be set based on the buyer's actual location
+const Buyer = require("../models/buyerModel");
 
 const getAllProducts = async (req, res) => {
   try {
+    // console.log(req.params.id);
+
+    const buyer = await Buyer.findById(req.params.id);
+    if (!buyer) {
+      return res.status(404).json({ message: "Buyer not found" });
+    }
+
+    const buyerLocation = buyer.location;
+
     const products = await Product.aggregate([
       { $match: { quantity: { $gt: 0 } } },
 
@@ -26,12 +35,13 @@ const getAllProducts = async (req, res) => {
         $project: { seller: 0 }
       }
     ]);
-    // console.log(products);
+
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 
 const getProductById = async (req, res) => {
@@ -45,28 +55,6 @@ const getProductById = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
-
-// const addComment = async (req, res) => {
-//   try {
-//     const { b_id, text } = req.body;
-
-//     const product = await Product.findById(req.params._id);
-//     if (!product)
-//       return res.status(404).json({ message: "Product not found" });
-
-//     product.comments.push({ b_id, text });
-//     await product.save();
-
-//     res.status(201).json({
-//       message: "Comment added",
-//       comments: product.comments,
-//     });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
 
 const addRating = async (req, res) => {
   try {

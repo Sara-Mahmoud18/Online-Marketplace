@@ -1,10 +1,7 @@
-// buyer-app/src/components/auth/ProtectedRoute.jsx
-import React from 'react';
 import { Navigate } from 'react-router-dom';
-import authService from '../../../../backend/src/utils/auth';
 
-const ProtectedRoute = ({ children }) => {
-  if (!authService.isAuthenticated()) {
+const ProtectedRoute = ({ children, islogged }) => {
+  if (!islogged) {
     return <Navigate to="/login" replace />;
   }
   return children;

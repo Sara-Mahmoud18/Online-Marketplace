@@ -1,20 +1,10 @@
 const Order = require('../models/orderModel');
 const Products = require('../models/productModel');
 
-// Get all orders
-const getAllOrders = async (req, res) => {
-  try {
-    const orders = await Order.find();
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
 // Get order by ID
-const getOrderById = async (req, res) => {
+const getOrderByBuyer = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.find({ B_ID: req.params.Bid });
     if (!order) return res.status(404).json({ message: 'Order not found' });
     res.json(order);
   } catch (err) {
@@ -25,6 +15,8 @@ const getOrderById = async (req, res) => {
 // Create new order
 const createOrder = async (req, res) => {
   try {
+    // console.log("Order Data:", req.body);
+
     const { Product, quantity } = req.body;
 
     // 1. Loop through products to check and update quantity
@@ -52,20 +44,8 @@ const createOrder = async (req, res) => {
   }
 };
 
-// Update order
-const updateOrder = async (req, res) => {
-  try {
-    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedOrder) return res.status(404).json({ message: 'Order not found' });
-    res.json(updatedOrder);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
 
 module.exports = {
-  getAllOrders,
-  getOrderById,
+  getOrderByBuyer,
   createOrder,
-  updateOrder,
 };

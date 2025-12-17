@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
-const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHandler }) => {
+const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
+    const { productId } = useParams();
+    const navigate = useNavigate();
     const product = products.find(p => p._id === productId);
 
     if (!product) {
@@ -10,6 +13,7 @@ const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHan
             </div>
         );
     }
+
     const [rating, setRating] = useState(product.userRating || 0);
     const [comment, setComment] = useState('');
     // const [comments, setComments] = useState(product.comments || []);
@@ -24,17 +28,17 @@ const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHan
 
         try {
             const res = await fetch(
-            `http://localhost:5000/api/products/${productId}/rate`,
-            {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                b_id: buyerId,
-                rating: rating,
-                }),
-            }
+                `http://localhost:5000/api/products/${productId}/rate`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        b_id: buyerId,
+                        rating: rating,
+                    }),
+                }
             );
 
             const data = await res.json();
@@ -43,37 +47,37 @@ const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHan
         } catch (error) {
             console.error('Failed to submit rating', error);
         }
-        };
+    };
 
 
     const handleCommentSubmit = async () => {
-    // if (comment.trim() === '') return;
+        // if (comment.trim() === '') return;
 
-    // try {
-    //     const res = await fetch(
-    //     `http://localhost:5000/api/products/${productId}/comment`,
-    //     {
-    //         method: 'POST',
-    //         headers: {
-    //         'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //         b_id: buyerId,
-    //         text: comment,
-    //         }),
-    //     }
-    //     );
+        // try {
+        //     const res = await fetch(
+        //     `http://localhost:5000/api/products/${productId}/comment`,
+        //     {
+        //         method: 'POST',
+        //         headers: {
+        //         'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({
+        //         b_id: buyerId,
+        //         text: comment,
+        //         }),
+        //     }
+        //     );
 
-    //     const data = await res.json();
+        //     const data = await res.json();
 
-    //     setComments(prev => [...prev, data.comment || data]);
+        //     setComments(prev => [...prev, data.comment || data]);
 
-    //     setComment('');
-    // } catch (error) {
-    //     console.error('Failed to add comment', error);
-    // }
-    
-};
+        //     setComment('');
+        // } catch (error) {
+        //     console.error('Failed to add comment', error);
+        // }
+
+    };
 
 
     const onAddToCart = () => {
@@ -82,14 +86,14 @@ const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHan
                 S_ID: product.S_ID,
                 B_ID: buyerId,
                 Product: product.name,
-                Status: "pending",                
-                price : product.price,
+                Status: "pending",
+                price: product.price,
                 totalPrice: product.price * quantity,
                 quantity: quantity
             };
 
             if (onAddToCartHandler) {
-                onAddToCartHandler(newCartItem); 
+                onAddToCartHandler(newCartItem);
                 alert(`Added ${quantity} x ${product.name} to cart successfully!`);
             } else {
                 alert("Error: Cart update handler not provided.");
@@ -101,14 +105,14 @@ const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHan
 
     return (
         <div className="container mx-auto p-4 sm:p-6 bg-gray-50 min-h-screen">
-            {onBack && (
-                <button
-                    onClick={onBack}
-                    className="mb-4 text-indigo-600 hover:text-indigo-800 font-semibold flex items-center"
-                >
-                    &larr; Back to Categories
-                </button>
-            )}
+
+            <button
+                onClick={() => navigate('/catalog')}
+                className="mb-4 text-indigo-600 hover:text-indigo-800 font-semibold flex items-center"
+            >
+                &larr; Back to Categories
+            </button>
+
 
             <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-xl overflow-hidden">
                 <div className="grid md:grid-cols-2 gap-8 p-8">
@@ -161,7 +165,7 @@ const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHan
                             />
                         </div>
                         <button
-                            onClick={onAddToCart} 
+                            onClick={onAddToCart}
                             className="w-full md:w-auto bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 transition"
                         >
                             Add to Cart

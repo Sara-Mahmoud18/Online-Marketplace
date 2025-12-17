@@ -21,6 +21,12 @@ app.use("/api", buyerRoutes);
 const orderRoutes = require("./routes/orderRoutes");
 app.use("/api/orders", orderRoutes);
 
+const authController = require('./routes/authRoutes');
+app.use('/api', authController);
+
+const commentsRoutes  = require('./routes/commentRoutes');
+app.use('/api', commentsRoutes );
+
 mongoose.connect(process.env.MONGO_URI)
 .then(async () => {
   console.log("MongoDB connected");

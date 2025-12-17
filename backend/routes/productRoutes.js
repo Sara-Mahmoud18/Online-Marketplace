@@ -8,10 +8,8 @@ const {
   addRating,
 } = require("../controllers/product");
 
-router.get("/", getAllProducts);
+router.get("/all/:id", getAllProducts);
 router.get("/:_id", getProductById);
-
-// router.post("/:_id/comment", addComment);
 router.post("/:_id/rate", addRating);
 
 module.exports = router;

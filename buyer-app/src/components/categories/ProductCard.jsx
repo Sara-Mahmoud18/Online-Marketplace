@@ -1,10 +1,14 @@
 import React from 'react';
+import {useNavigate } from 'react-router-dom';
 
-const ProductCard = ({ product, onClick }) => {
+
+const ProductCard = ({ product}) => {
+    const navigate = useNavigate();
+
   return (
     <div 
       className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition cursor-pointer" 
-      onClick={onClick} 
+      onClick={() => navigate(`/catalog/${product._id}`)}
     >
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">

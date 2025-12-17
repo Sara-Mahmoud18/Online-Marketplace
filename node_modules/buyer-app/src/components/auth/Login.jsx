@@ -1,29 +1,29 @@
-// buyer-app/src/components/auth/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import authService from "../../../../backend/src/utils/auth";
 
-const Login = () => {
+const Login = ({onLoginHandler}) => {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
 
     try {
-      await authService.login(formData.email, formData.password);
-      navigate('/catalog');  // Redirect to buyer catalog
+      const result = await onLoginHandler(formData);
+
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        const errData = await res.json();
+        setError(errData.message || 'Registration failed');
+      }
     } catch (err) {
       setError(err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -36,15 +36,15 @@ const Login = () => {
         
         {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-gray-700 mb-2">Email</label>
+            <label className="block text-gray-700 mb-2">username</label>
             <input
-              type="email"
+              type="username"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="buyer@test.com"
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              placeholder="username"
+              value={formData.username}
+              onChange={(e) => setFormData({...formData, username: e.target.value})}
               required
             />
           </div>
@@ -54,7 +54,7 @@ const Login = () => {
             <input
               type="password"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="password123"
+              placeholder="password"
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
               required
@@ -63,10 +63,9 @@ const Login = () => {
           
           <button
             type="submit"
-            disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Logging in...' : 'Login as Buyer'}
+            Login
           </button>
         </form>
         
@@ -76,9 +75,6 @@ const Login = () => {
             <Link to="/register" className="text-blue-600 hover:underline">
               Register
             </Link>
-          </p>
-          <p className="text-sm text-gray-500 mt-2">
-            Demo: buyer@test.com / password123
           </p>
         </div>
       </div>

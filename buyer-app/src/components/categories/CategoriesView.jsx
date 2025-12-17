@@ -4,7 +4,7 @@ import { Filter, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 
 
-const CategoriesView = ({ products, viewProductDetail }) => {
+const CategoriesView = ({ products = [] }) => {
   const [search, setSearch] = useState("");
   const [startIndexMap, setStartIndexMap] = useState({});
 
@@ -124,7 +124,6 @@ const CategoriesView = ({ products, viewProductDetail }) => {
                       >
                         <CategoryCard
                           products={[product]}
-                          viewProductDetail={viewProductDetail}
                         />
                       </div>
                     ))}

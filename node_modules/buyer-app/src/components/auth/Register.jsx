@@ -1,37 +1,46 @@
 // buyer-app/src/components/auth/Register.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import authService from '../../../../backend/src/utils/auth';
 
-const Register = () => {
+const Register = ({ onRegisterHandler }) => {
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    location: '',
+    phone: ''
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
-    setLoading(true);
-    
+
     try {
-      await authService.register(formData);
-      navigate('/catalog');
+      const payload = {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        location: formData.location,
+        phone: formData.phone
+      };
+      const result = await onRegisterHandler(payload);
+
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        const errData = await res.json();
+        setError(errData.message || 'Registration failed');
+      }
     } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
+      console.log(err.message || 'Registration failed');
     }
   };
 
@@ -41,63 +50,82 @@ const Register = () => {
         <h2 className="text-2xl font-bold text-center text-blue-700 mb-6">
           Register as Buyer
         </h2>
-        
+
         {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 mb-2">Full Name</label>
+            <label className="block text-gray-700 mb-2">Username</label>
             <input
               type="text"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-gray-700 mb-2">Email</label>
             <input
               type="email"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-gray-700 mb-2">Password</label>
             <input
               type="password"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-gray-700 mb-2">Confirm Password</label>
             <input
               type="password"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               value={formData.confirmPassword}
-              onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               required
             />
           </div>
-          
+
+          <div>
+            <label className="block text-gray-700 mb-2">Location</label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-2">Phone</label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            />
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
           >
-            {loading ? 'Creating Account...' : 'Register as Buyer'}
+            Register
           </button>
         </form>
-        
+
         <div className="mt-4 text-center">
           <p className="text-gray-600">
             Already have an account?{' '}

@@ -1,12 +1,5 @@
 const mongoose = require("mongoose");
 
-// const commentSchema = new mongoose.Schema({
-//   b_id: { type: String },
-//   p_id: { type: String },
-//   text: { type: String },
-//   date: { type: Date, default: Date.now }
-// });
-
 const productSchema = new mongoose.Schema({
   P_ID: String,              
   name: { type: String, required: true },
@@ -19,9 +12,6 @@ const productSchema = new mongoose.Schema({
   sum_rating: { type: Number, default: 0 },
   number_rating: { type: Number, default: 0 },
   image: String,
-  // comments: [commentSchema],
-  // serviceArea: [String],
-  // Status: { type: String, default: "pending" },
 },{ versionKey: false }, { timestamps: true });
 
 module.exports = mongoose.model("Product", productSchema);

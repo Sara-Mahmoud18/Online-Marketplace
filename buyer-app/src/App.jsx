@@ -15,56 +15,56 @@ import FlaggedView from './components/flagged/FlaggedView';
 import ProductDetailPage from './components/categories/catalogView';
 import Cart from './components/cart/cart';
 
-const b_id = "b444"; // TODO: Replace with real buyer id from auth
-
 const App = () => {
-    const [selectedProductId, setSelectedProductId] = useState(null);
     const [orders, setOrders] = useState([]);
     const [flags, setFlag] = useState([]);
     const [products, setProducts] = useState([]);
     const [cart, setCart] = useState([]);
-    
+    const [logged, setlog] = useState(false);
+    const [_id, setID] = useState("");
+
+
 
     // Fetch products
     useEffect(() => {
-        fetch('http://localhost:5000/api/products')
+        if (!logged) return;
+        fetch(`http://localhost:5000/api/products/all/${_id}`)
             .then(res => res.json())
             .then(data => setProducts(data))
             .catch(err => console.log(err));
-    }, []);
+    }, [logged]);
 
     // Fetch cart
     useEffect(() => {
-        fetch(`http://localhost:5000/api/cart/${b_id}`)
+        if (!logged) return;
+        fetch(`http://localhost:5000/api/cart/${_id}`)
             .then(res => res.json())
             .then(data => setCart(data))
             .catch(err => console.log(err));
-    }, []);
+    }, [logged]);
 
     // Fetch orders
     useEffect(() => {
-        fetch(`http://localhost:5000/api/orders?buyerId=${b_id}`)
+        if (!logged) return;
+        fetch(`http://localhost:5000/api/orders/${_id}`)
             .then(res => res.json())
             .then(data => setOrders(data))
             .catch(err => console.log(err));
-    }, []);
+    }, [logged]);
 
     // Fetch flagged sellers
     useEffect(() => {
-        fetch(`http://localhost:5000/api/buyers/${b_id}/flagged-sellers`)
+        if (!logged) return;
+        fetch(`http://localhost:5000/api/buyers/${_id}/flagged-sellers`)
             .then(res => res.json())
             .then(data => setFlag(data))
             .catch(err => console.log(err));
-    }, []);
-
-    const viewProductDetail = (productId) => {
-        setSelectedProductId(productId);
-    };
+    }, [logged]);
 
     const getItemId = (item) => item._id;
 
     const handleRemoveItem = (itemId) => {
-        fetch(`http://localhost:5000/api/cart/${b_id}/item/${itemId}`, {
+        fetch(`http://localhost:5000/api/cart/${_id}/item/${itemId}`, {
             method: "DELETE",
         })
             .then(res => res.json())
@@ -73,7 +73,7 @@ const App = () => {
     };
 
     const handleRemoveSeller = (sellerId) => {
-        fetch(`http://localhost:5000/api/cart/${b_id}/seller/${sellerId}`, {
+        fetch(`http://localhost:5000/api/cart/${_id}/seller/${sellerId}`, {
             method: "DELETE",
         })
             .then(res => res.json())
@@ -82,7 +82,7 @@ const App = () => {
     };
 
     const onAddToCartHandler = (newCartItem) => {
-        fetch(`http://localhost:5000/api/cart/${b_id}`, {
+        fetch(`http://localhost:5000/api/cart/${_id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -93,6 +93,57 @@ const App = () => {
             .then(data => setCart(data))
             .catch(err => console.log(err));
     };
+
+    const onRegisterHandler = async (newBuyer) => {
+        try {
+            const res = await fetch('http://localhost:5000/api/buyers/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newBuyer),
+            });
+
+            if (res.status === 201) {
+                const data = await res.json();
+                setlog(true);
+                setID(data.user.id);
+                return { success: true, data };
+            } else {
+                const errData = await res.json();
+                return { success: false, error: errData.message || 'Registration failed' };
+            }
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    const onLoginHandler = async (logInfo) => {
+        try {
+            const res = await fetch('http://localhost:5000/api/buyers/login', {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(logInfo),
+            });
+
+            if (res.status === 200) {
+                const data = await res.json();
+                setlog(true);
+                setID(data.user.id);
+                // console.log("Logged in with ID:", data.user.id);
+                return { success: true, data };
+            } else {
+                const errData = await res.json();
+                return { success: false, error: errData.message || 'Logging failed' };
+            }
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    const handleLogout = () => {
+        setlog(false);
+        setID("");
+        return true;
+    }
 
     const handleCompleteOrder = async (sellerId, sellerItems) => {
         const nowISO = new Date().toISOString();
@@ -109,7 +160,7 @@ const App = () => {
 
         const sellerOrder = {
             S_ID: sellerId,
-            B_ID: b_id, // Ensure b_id is defined in your component scope
+            B_ID: _id,
             Product: productsArray,
             quantity: quantitiesArray,
             Status: "Pending",
@@ -121,7 +172,7 @@ const App = () => {
         try {
             // STEP 1: Create the Order in the database
             // This will trigger your backend logic to check and decrement quantity
-            const orderResponse = await fetch('http://localhost:5000/api/orders', {
+            const orderResponse = await fetch(`http://localhost:5000/api/orders`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(sellerOrder)
@@ -137,7 +188,7 @@ const App = () => {
             // STEP 2: Delete items from the Cart database
             // We use a loop or a bulk delete endpoint. 
             // Here, we loop through the items for this seller to delete them by ID.
-            fetch(`http://localhost:5000/api/cart/${b_id}/seller/${sellerId}`, {
+            fetch(`http://localhost:5000/api/cart/${_id}/seller/${sellerId}`, {
                 method: "DELETE",
             })
                 .then(res => res.json())
@@ -164,7 +215,7 @@ const App = () => {
         fetch('http://localhost:5000/api/buyers/flag-seller', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ buyerId: b_id, sellerId, reason })
+            body: JSON.stringify({ buyerId: _id, sellerId, reason })
         })
             .then(res => {
                 res.json();
@@ -175,8 +226,7 @@ const App = () => {
                 return res;
             })
             .then(() => {
-                // Refresh flagged sellers from backend
-                fetch(`http://localhost:5000/api/buyers/${b_id}/flagged-sellers`)
+                fetch(`http://localhost:5000/api/buyers/${_id}/flagged-sellers`)
                     .then(res => res.json())
                     .then(data => setFlag(data));
             })
@@ -184,26 +234,22 @@ const App = () => {
 
     };
 
-
-    // ... all other handlers like onAddToCartHandler, handleRemoveItem, handleCompleteOrder, flagSeller remain unchanged ...
-
     return (
         <Router>
             <div className="min-h-screen bg-gray-50">
-                <Header />
-                <Navigation />
-
+                <Header handleLogout={handleLogout} islogged={logged} />
+                {logged && <Navigation />}
                 <main className="max-w-7xl mx-auto px-4 py-8">
                     <Routes>
                         {/* Public Routes */}
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
+                        <Route path="/login" element={<Login onLoginHandler={onLoginHandler} />} />
+                        <Route path="/register" element={<Register onRegisterHandler={onRegisterHandler} />} />
 
                         {/* Protected Routes */}
                         <Route
                             path="/dashboard"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute islogged={logged}>
                                     <DashboardView orders={orders} />
                                 </ProtectedRoute>
                             }
@@ -211,7 +257,8 @@ const App = () => {
                         <Route
                             path="/orders"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute islogged={logged}>
+
                                     <OrdersView orders={orders} flagSeller={flagSeller} />
                                 </ProtectedRoute>
                             }
@@ -219,18 +266,19 @@ const App = () => {
                         <Route
                             path="/catalog"
                             element={
-                                <ProtectedRoute>
-                                    <CategoriesView viewProductDetail={viewProductDetail} products={products} />
+                                <ProtectedRoute islogged={logged}>
+
+                                    <CategoriesView products={products} />
                                 </ProtectedRoute>
                             }
                         />
                         <Route
                             path="/catalog/:productId"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute islogged={logged}>
+
                                     <ProductDetailPage
-                                        buyerId={b_id}
-                                        productId={selectedProductId}
+                                        buyerId={_id}
                                         products={products}
                                         onAddToCartHandler={onAddToCartHandler}
                                     />
@@ -240,7 +288,8 @@ const App = () => {
                         <Route
                             path="/cart"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute islogged={logged}>
+
                                     <Cart
                                         CartArr={cart}
                                         onRemoveItem={handleRemoveItem}
@@ -254,7 +303,8 @@ const App = () => {
                         <Route
                             path="/flagged"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute islogged={logged}>
+
                                     <FlaggedView FlaggedSellers={flags} />
                                 </ProtectedRoute>
                             }
