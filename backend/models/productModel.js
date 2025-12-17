@@ -12,17 +12,15 @@ const productSchema = new mongoose.Schema({
   description: String,
   price: { type: Number, required: true },
   quantity: Number,
-  stock: Number,
   category: String,
-  deliveryTime: String,
-  estimated_DT: Date,
+  estimated_DT: Number,
   S_ID: String,
   sum_rating: { type: Number, default: 0 },
   number_rating: { type: Number, default: 0 },
+  image: String,
   comments: [commentSchema],
   serviceArea: [String],
   Status: { type: String, default: "pending" },
-  image: String,
-}, { timestamps: true });
+},{ versionKey: false }, { timestamps: true });
 
 module.exports = mongoose.model("Product", productSchema);

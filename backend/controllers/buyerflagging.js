@@ -28,18 +28,26 @@ exports.flagSeller = async (req, res) => {
   }
 };
 
-// Get all sellers flagged by a buyer (with reasons)
+// Get all sellers flagged by a buyer
 exports.getFlaggedSellersByBuyer = async (req, res) => {
   try {
-    const { buyerId } = req.params; // This is "b444"
+    const { buyerId } = req.params;
 
-    // Search for sellers where at least one element in FlagB has id equal to "b444"
-    const flaggedSellers = await Seller.find({ 
-      "FlagB.buyerId": buyerId 
+    const flaggedSellers = await Seller.find({
+      "FlagB.buyerId": buyerId
     });
 
-    // If no sellers found, flaggedSellers will be [], not null.
-    res.json(flaggedSellers);
+    const result = flaggedSellers.map(seller => {
+      const flag = seller.FlagB.find(f => f.buyerId === buyerId);
+
+      return {
+        sellerId: seller.id,
+        email: seller.email,
+        reason: flag?.reason || null
+      };
+    });
+
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

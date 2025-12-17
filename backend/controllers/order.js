@@ -27,19 +27,19 @@ const createOrder = async (req, res) => {
   try {
     const { Product, quantity } = req.body;
 
-    // 1. Loop through products to check and update stock
+    // 1. Loop through products to check and update quantity
     for (let i = 0; i < Product.length; i++) {
       const productName = Product[i];
       const qtyToReduce = quantity[i];
 
       const productDoc = await Products.findOne({ name: productName });
 
-      if (!productDoc || productDoc.stock < qtyToReduce) {
+      if (!productDoc || productDoc.quantity < qtyToReduce) {
         return res.status(400).json({ message: `Insufficient stock for ${productName} please remove the item` });
       }
 
-      // 2. Decrement the stock
-      productDoc.stock -= qtyToReduce;
+      // 2. Decrement the quantity
+      productDoc.quantity -= qtyToReduce;
       await productDoc.save();
     }
 

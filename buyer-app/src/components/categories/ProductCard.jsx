@@ -19,7 +19,7 @@ const ProductCard = ({ product, onClick }) => {
 
           <div className="flex justify-between">
             <span className="text-gray-600">Stock:</span>
-            <span className="font-semibold text-gray-900">{product.stock} units</span>
+            <span className="font-semibold text-gray-900">{product.quantity} units</span>
           </div>
         </div>
       </div>

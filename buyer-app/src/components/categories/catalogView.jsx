@@ -142,8 +142,8 @@ const ProductDetailPage = ({buyerId, productId, products, onBack, onAddToCartHan
 
                             <div className="space-y-2 text-gray-800 mb-6">
                                 <p><span className="font-semibold">Quantity Available:</span> {product.quantity}</p>
-                                <p><span className="font-semibold">Estimated Delivery:</span>
-                                    {product.estimated_DT ? new Date(product.estimated_DT).toLocaleDateString() : "N/A"}
+                                <p><span className="font-semibold">Estimated Delivery: </span>
+                                    {product.estimated_DT ? product.estimated_DT : 1} days
                                 </p>
                             </div>
                         </div>

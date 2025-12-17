@@ -8,10 +8,8 @@ const FlaggedBuyerCard = ({ flag }) => {
       <div className="flex items-start gap-4">
         <Flag className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">{flag.username}</h3>
-          <p className="text-sm text-gray-600 mt-1">Email: {flag.email}</p>
-          <p className="text-sm text-gray-600 mt-1">Phone: {flag.phone}</p>
-          <p className="text-sm text-gray-600 mt-1">Location: {flag.location}</p>
+          <h3 className="text-lg font-semibold text-gray-900">{flag.email}</h3>
+          <p className="text-sm text-gray-600 mt-1">Reason: {flag.reason}</p>
         </div>
       </div>
     </div>

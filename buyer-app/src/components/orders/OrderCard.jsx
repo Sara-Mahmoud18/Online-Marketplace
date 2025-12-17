@@ -12,8 +12,10 @@ const OrderCard = ({ order, flagSeller }) => {
   };
 
   const handleFlagSeller = () => {
-    flagSeller(order.S_ID);
-    // console.log("Done");
+    const reason = prompt('Enter reason for flagging this buyer:');
+    if (reason?.trim())
+      flagSeller(order.S_ID, reason.trim());
+     console.log(reason.trim());
   };
 
   return (
@@ -32,7 +34,7 @@ const OrderCard = ({ order, flagSeller }) => {
               ))
             }
           </div>
-          <hr className='pb-2'/>
+          <hr className='pb-2' />
           <p className="text-sm text-gray-600">Total Price: ${order.total_price}</p>
           <p className="text-sm text-gray-600">Created Date: {order.Created_Date}</p>
           {order.Delivery_Date !== null && (

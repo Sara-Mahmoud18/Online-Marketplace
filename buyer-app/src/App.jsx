@@ -117,7 +117,7 @@ const App = () => {
 
         try {
             // STEP 1: Create the Order in the database
-            // This will trigger your backend logic to check and decrement stock
+            // This will trigger your backend logic to check and decrement quantity
             const orderResponse = await fetch('http://localhost:5000/api/orders', {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -127,7 +127,7 @@ const App = () => {
             const orderData = await orderResponse.json();
 
             if (!orderResponse.ok) {
-                // If the backend returned an error (like "Insufficient stock")
+                // If the backend returned an error (like "Insufficient quantity")
                 throw new Error(orderData.message || "Failed to create order");
             }
 
@@ -157,7 +157,7 @@ const App = () => {
     };
 
     // Flag a seller in backend
-    const flagSeller = (sellerId, reason = "Inappropriate behavior") => {
+    const flagSeller = (sellerId, reason) => {
         fetch('http://localhost:5000/api/buyers/flag-seller', {
             method: "POST",
             headers: { "Content-Type": "application/json" },

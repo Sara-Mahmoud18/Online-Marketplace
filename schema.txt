@@ -40,14 +40,15 @@ cart:
 
 product:
 - id: ObjectID
+- P_ID: string
 - quantity: int
 - description: string
 - name: string
 - category:string
 - sum_rating:int
 - number_rating: int
-- s_Id: string
-- estimated_DT: Date
+- S_ID: string
+- estimated_DT: Number
 - image : string
 
 comment:
