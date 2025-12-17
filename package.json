@@ -2,8 +2,11 @@
   "name": "marketplace-project",
   "version": "1.0.0",
   "main": "main.jsx",
+  "private": true,
+  "workspaces": ["buyer-app", "backend"],
   "scripts": {
-    "dev": "nodemon main.jsx"
+    "dev": "../node_modules/.bin/vite",
+    "build": "../node_modules/.bin/vite build"
   },
   "repository": {
     "type": "git",

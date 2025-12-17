@@ -1,5 +1,5 @@
 buyer
-- FlagS: Array
+- FlagS: [{Sellerid, reason},...]
 - id: ObjectID
 - username: string
 - password: string
@@ -8,11 +8,11 @@ buyer
 - phone: string
 
 Seller
-- FlagB : Array
+- FlagB : [{Buyerid, reason},...]
 - id: ObjectID
 - username: string
 - password: string
-- location: string
+- location: Array
 - email: string
 - phone: string
 
@@ -40,10 +40,10 @@ cart:
 
 product:
 - id: ObjectID
-- P_ID: string
 - quantity: int
 - description: string
 - name: string
+- price: double
 - category:string
 - sum_rating:int
 - number_rating: int
@@ -56,3 +56,4 @@ comment:
 - id: objectid() string
 - product id: string
 - b_id: string
+- date: Date
