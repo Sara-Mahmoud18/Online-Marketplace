@@ -5,6 +5,7 @@ import { Flag } from 'lucide-react';
 
 
 const FlaggedView = ({FlaggedSellers}) => {
+  // console.log(FlaggedSellers);
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Flagged Sellers</h2>
@@ -15,8 +16,8 @@ const FlaggedView = ({FlaggedSellers}) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {FlaggedSellers.map(flag => (
-            <FlaggedBuyerCard key={flag.id} flag={flag} />
+          {FlaggedSellers.map((flag,index) => (
+            <FlaggedBuyerCard key={index} flag={flag} />
           ))}
         </div>
       )}

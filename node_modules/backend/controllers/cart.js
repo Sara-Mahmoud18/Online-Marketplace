@@ -1,15 +1,14 @@
 const Cart = require("../models/cartModel");
+const Seller = require("../models/sellerModel");
 
 // GET CART
 const getCart = async (req, res) => {
   try {
     const { buyerId } = req.params;
 
-    // if (!mongoose.Types.ObjectId.isValid(buyerId)) {
-    //   return res.status(400).json({ message: "Invalid buyer ID" });
-    // }
-
-    let cart = await Cart.findOne({ buyerId });
+    let cart = await Cart.findOne({ buyerId })
+      .populate("items.Product", "name")   // product name
+      .populate("items.S_ID", "email");    // seller email
     if (!cart) {
       cart = await Cart.create({ buyerId, items: [] });
     }
@@ -19,6 +18,7 @@ const getCart = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // ADD TO CART
 const addToCart = async (req, res) => {

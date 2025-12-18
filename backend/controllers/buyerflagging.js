@@ -15,7 +15,7 @@ exports.flagSeller = async (req, res) => {
     // Find seller by _id
     const seller = await Seller.findById(sellerId);
     if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(201).json({ message: 'Seller not found' });
     }
 
     if (!seller.FlagB) seller.FlagB = [];
@@ -26,7 +26,7 @@ exports.flagSeller = async (req, res) => {
     );
 
     if (alreadyFlagged) {
-      return res.status(409).json({ message: 'You have already flagged this seller' });
+      return res.status(220).json({ message: 'You have already flagged this seller' });
     }
     // console.log("here");
     // seller.FlagB.push({
@@ -70,7 +70,7 @@ exports.getFlaggedSellersByBuyer = async (req, res) => {
       return {
         sellerId: seller._id,
         email: seller.email,
-        reason: flag?.reason || null
+        reason: flag?.reason || "no reason"
       };
     });
 

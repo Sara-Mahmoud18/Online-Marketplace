@@ -5,16 +5,35 @@ const Products = require('../models/productModel');
 const getOrderByBuyer = async (req, res) => {
   try {
     const { buyerId } = req.params;
-    // console.log("Fetching orders for buyer ID:", buyerId);
+
     const orders = await Order.find({ B_ID: buyerId })
-      .populate("B_ID", "username email")
       .populate("S_ID", "email");
 
-    res.json(orders);
+    // get all unique product IDs
+    const productIds = orders.flatMap(o => o.Product);
+
+    const products = await Products.find(
+      { _id: { $in: productIds } },
+      { name: 1 }
+    );
+
+    const productMap = {};
+    products.forEach(p => {
+      productMap[p._id.toString()] = p.name;
+    });
+
+    // replace product IDs with names
+    const formattedOrders = orders.map(order => ({
+      ...order.toObject(),
+      Product: order.Product.map(pid => productMap[pid] || pid)
+    }));
+
+    res.json(formattedOrders);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // CREATE ORDER
 const createOrder = async (req, res) => {

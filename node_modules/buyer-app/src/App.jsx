@@ -37,12 +37,12 @@ const App = () => {
     // Fetch cart
     useEffect(() => {
         if (!logged) return;
-        fetch(`http://localhost:5000/api/orders/${_id}`)
+        fetch(`http://localhost:5000/api/cart/${_id}`)
             .then(res => res.ok ? res.json() : [])
-            .then(data => setOrders(Array.isArray(data) ? data : []))
+            .then(data => setCart(Array.isArray(data) ? data : []))
             .catch(err => {
                 console.log(err);
-                setOrders([]);
+                setCart([]);
             });
     }, [logged]);
 

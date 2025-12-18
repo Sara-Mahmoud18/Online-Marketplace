@@ -1,15 +1,5 @@
 
 import React from "react";
-
-function groupBySeller(items = []) {
-  return items.reduce((acc, item) => {
-    const key = item.S_ID ?? "UNKNOWN_SELLER";
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(item);
-    return acc;
-  }, {});
-}
-
 // function formatCurrency(value) {
 //   try {
 //     return new Intl.NumberFormat("en-US", {
@@ -22,12 +12,20 @@ function groupBySeller(items = []) {
 //   }
 // }
 
+function groupBySeller(items = []) {
+  return items.reduce((acc, item) => {
+    const sellerId = item.S_ID?._id?.toString() ?? "UNKNOWN_SELLER";
+    if (!acc[sellerId]) acc[sellerId] = [];
+    acc[sellerId].push(item);
+    return acc;
+  }, {});
+}
+
 const Cart = ({
-  CartArr,
+  CartArr = [],
   onRemoveItem,
   onRemoveSeller,
   onCompleteSellerOrder,
-  getItemId = (item) => item.P_ID ?? `${item.S_ID}-${item.Product}-${item.price}`,
 }) => {
   const grouped = groupBySeller(CartArr);
   const sellerIds = Object.keys(grouped);
@@ -44,23 +42,33 @@ const Cart = ({
     <div className="space-y-6">
       {sellerIds.map((sellerId) => {
         const sellerItems = grouped[sellerId];
+
+        // seller email comes from populated S_ID object
+        const sellerEmail =
+          sellerItems[0]?.S_ID?.email ?? "Unknown seller";
+
         const sellerSubtotal = sellerItems.reduce(
-          (sum, item) => sum + (Number(item.price) * Number(item.quantity) || 0),
+          (sum, item) =>
+            sum + (Number(item.price) * Number(item.quantity) || 0),
           0
         );
 
         return (
           <div key={sellerId} className="bg-white rounded-lg shadow p-6">
+            {/* SELLER HEADER */}
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">
-                Seller: <span className="text-indigo-600">{sellerId}</span>
+                Seller:{" "}
+                <span className="text-indigo-600">{sellerEmail}</span>
               </h2>
             </div>
 
+            {/* ITEMS */}
             <div className="divide-y">
               {sellerItems.map((item) => {
-                const itemId = getItemId(item);
-                const total = Number(item.price) * Number(item.quantity);
+                const itemId = item._id; // ✅ correct Mongo ID
+                const total =
+                  Number(item.price) * Number(item.quantity);
 
                 return (
                   <div
@@ -68,13 +76,18 @@ const Cart = ({
                     className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                   >
                     <div>
-                      <div className="font-medium text-gray-900">{item.Product}</div>
-                      <div className="text-sm text-gray-500">Qty: {item.quantity}</div>
+                      <div className="font-medium text-gray-900">
+                        {item.Product?.name ?? "Unknown product"}
+                      </div>
+
+                      <div className="text-sm text-gray-500">
+                        Qty: {item.quantity}
+                      </div>
+
                       <div className="mt-2">
                         <button
                           className="px-3 py-1 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100"
                           onClick={() => onRemoveItem?.(itemId)}
-                          title="Remove this item"
                         >
                           Remove Item
                         </button>
@@ -84,7 +97,7 @@ const Cart = ({
                     <div className="text-right">
                       <div className="text-sm text-gray-500">Total</div>
                       <div className="text-base font-semibold">
-                        ${total}
+                        ${total.toFixed(2)}
                       </div>
                     </div>
                   </div>
@@ -92,15 +105,16 @@ const Cart = ({
               })}
             </div>
 
+            {/* SUBTOTAL */}
             <div className="mt-4 flex items-center justify-between border-t pt-4">
               <div className="text-sm text-gray-500">Seller Subtotal</div>
               <div className="text-lg font-semibold">
-                ${sellerSubtotal}
+                ${sellerSubtotal.toFixed(2)}
               </div>
             </div>
 
+            {/* ACTIONS */}
             <div className="mt-4 flex flex-wrap gap-2">
-              {/* Complete Order for this seller */}
               <button
                 className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
                 onClick={() =>
@@ -110,12 +124,11 @@ const Cart = ({
                 Complete Order
               </button>
 
-              {/* Remove all items from this seller */}
               <button
-                className="px-4 py-2 bg-gray-100 text-gray-800 rounded hover:bg-gray-200"
+                className="px-4 py-2 bg-red-200 text-red-600 rounded hover:bg-red-300"
                 onClick={() => onRemoveSeller?.(sellerId)}
               >
-                Remove All from {sellerId}
+                Remove All Items
               </button>
             </div>
           </div>
@@ -125,4 +138,4 @@ const Cart = ({
   );
 };
 
-export default Cart
+export default Cart;
