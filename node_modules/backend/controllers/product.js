@@ -6,35 +6,53 @@ const getAllProducts = async (req, res) => {
   try {
     const { buyerId } = req.params;
 
-    // if (!mongoose.Types.ObjectId.isValid(buyerId)) {
-    //   return res.status(400).json({ message: "Invalid buyer ID" });
-    // }
-
     const buyer = await Buyer.findById(buyerId);
-    if (!buyer) {
-      return res.status(404).json({ message: "Buyer not found" });
-    }
+    if (!buyer) return res.status(404).json({ message: "Buyer not found" });
 
     const products = await Product.aggregate([
       { $match: { quantity: { $gt: 0 } } },
 
+      // Join seller info
       {
         $lookup: {
           from: "sellers",
           localField: "S_ID",
-          foreignField: "_id",   // ✅ FIX
-          as: "seller"
-        }
+          foreignField: "_id",
+          as: "seller",
+        },
       },
       { $unwind: "$seller" },
 
+      // Only sellers in the buyer's location
+      { $match: { "seller.location": buyer.location } },
+
+      // Join orders for this buyer
       {
-        $match: {
-          "seller.location": buyer.location
-        }
+        $lookup: {
+          from: "orders",
+          let: { productId: "$_id" },
+          pipeline: [
+            { $match: { B_ID: buyer._id } },
+            { $project: { Product: 1 } },
+            {
+              $match: {
+                $expr: { $in: ["$$productId", "$Product"] },
+              },
+            },
+          ],
+          as: "previousOrders",
+        },
       },
 
-      { $project: { seller: 0 } }
+      // Add a flag if the buyer ordered this product
+      {
+        $addFields: {
+          orderedBefore: { $gt: [{ $size: "$previousOrders" }, 0] },
+        },
+      },
+
+      // Remove fields we don't want to return
+      { $project: { seller: 0, previousOrders: 0 } },
     ]);
 
     res.json(products);
@@ -42,6 +60,7 @@ const getAllProducts = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 const getProductById = async (req, res) => {
   try {

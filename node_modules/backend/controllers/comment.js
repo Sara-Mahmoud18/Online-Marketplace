@@ -25,7 +25,6 @@ const addComment = async (req, res) => {
 
     res.status(201).json({
       message: "Comment added",
-      comment: newComment
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

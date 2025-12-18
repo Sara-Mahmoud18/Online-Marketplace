@@ -51,31 +51,31 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
 
 
     const handleCommentSubmit = async () => {
-        // if (comment.trim() === '') return;
+        if (comment.trim() === '') return;
 
-        // try {
-        //     const res = await fetch(
-        //     `http://localhost:5000/api/products/${productId}/comment`,
-        //     {
-        //         method: 'POST',
-        //         headers: {
-        //         'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({
-        //         b_id: buyerId,
-        //         text: comment,
-        //         }),
-        //     }
-        //     );
+        try {
+            const res = await fetch(
+            `http://localhost:5000/api/comments`,
+            {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                b_id: buyerId,
+                text: comment,
+                productId: productId,
+                }),
+            }
+            );
 
-        //     const data = await res.json();
+            if (res.status === 201) {
+                alert("Comment is added");
+            }
 
-        //     setComments(prev => [...prev, data.comment || data]);
-
-        //     setComment('');
-        // } catch (error) {
-        //     console.error('Failed to add comment', error);
-        // }
+        } catch (error) {
+            console.error('Failed to add comment', error);
+        }
 
     };
 
@@ -102,7 +102,7 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
         else alert(`Please choose a quantity number equal to or smaller than the product's quantity (${product.quantity})`);
 
     };
-
+    // console.log(products)
     return (
         <div className="container mx-auto p-4 sm:p-6 bg-gray-50 min-h-screen">
 
@@ -174,7 +174,7 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
                     </div>
                 </div>
 
-                {product.Status === 'delivered' && (
+                {product.orderedBefore && (
                     <div>
                         <div className="mt-8 border-t pt-6 p-4">
                             <h2 className="text-xl font-bold mb-4">Rate this product</h2>
