@@ -1,14 +1,13 @@
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
-  P_ID: String,              
   name: { type: String, required: true },
-  description: String,
+  description: { type: String, required: true },
   price: { type: Number, required: true },
-  quantity: Number,
-  category: String,
-  estimated_DT: Number,
-  S_ID: String,
+  quantity: { type: Number, required: true },
+  category: { type: String, required: true },
+  estimated_DT: { type: Number, required: true },
+  S_ID: { type: mongoose.Schema.Types.ObjectId, ref: "Seller", required: true },
   sum_rating: { type: Number, default: 0 },
   number_rating: { type: Number, default: 0 },
   image: String,

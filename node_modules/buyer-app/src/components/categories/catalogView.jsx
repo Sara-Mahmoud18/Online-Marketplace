@@ -85,7 +85,7 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
             const newCartItem = {
                 S_ID: product.S_ID,
                 B_ID: buyerId,
-                Product: product.name,
+                Product: product._id,
                 Status: "pending",
                 price: product.price,
                 totalPrice: product.price * quantity,

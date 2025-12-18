@@ -1,10 +1,13 @@
-const mongoose = require("mongoose");
 const Cart = require("../models/cartModel");
 
-
+// GET CART
 const getCart = async (req, res) => {
   try {
     const { buyerId } = req.params;
+
+    // if (!mongoose.Types.ObjectId.isValid(buyerId)) {
+    //   return res.status(400).json({ message: "Invalid buyer ID" });
+    // }
 
     let cart = await Cart.findOne({ buyerId });
     if (!cart) {
@@ -17,17 +20,17 @@ const getCart = async (req, res) => {
   }
 };
 
-
+// ADD TO CART
 const addToCart = async (req, res) => {
   try {
-    const { buyerId } = req.params;
+    const { buyerId } = req.params; // ✅ fixed
+    const { S_ID, Product, price, quantity } = req.body;
 
     const item = {
-      S_ID: req.body.S_ID,
-      Product: req.body.Product,
-      price: Number(req.body.price),
-      quantity: Number(req.body.quantity) || 1,
-      _id: new mongoose.Types.ObjectId(),
+      S_ID,
+      Product,
+      price: Number(price),
+      quantity: Number(quantity) || 1,
     };
 
     let cart = await Cart.findOne({ buyerId });
@@ -44,17 +47,18 @@ const addToCart = async (req, res) => {
   }
 };
 
-
+// REMOVE ITEM
 const removeItem = async (req, res) => {
   const { buyerId, itemId } = req.params;
 
   try {
     const cart = await Cart.findOne({ buyerId });
-    if (!cart)
+    if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
+    }
 
     cart.items = cart.items.filter(
-      (item) => item._id.toString() !== itemId
+      item => !item._id.equals(itemId)
     );
 
     await cart.save();
@@ -64,17 +68,22 @@ const removeItem = async (req, res) => {
   }
 };
 
-
+// REMOVE SELLER ITEMS
 const removeSellerItems = async (req, res) => {
   const { buyerId, sellerId } = req.params;
 
   try {
+    // if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+    //   return res.status(400).json({ message: "Invalid seller ID" });
+    // }
+
     const cart = await Cart.findOne({ buyerId });
-    if (!cart)
+    if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
+    }
 
     cart.items = cart.items.filter(
-      (item) => item.S_ID !== sellerId
+      item => !item.S_ID.equals(sellerId)
     );
 
     await cart.save();

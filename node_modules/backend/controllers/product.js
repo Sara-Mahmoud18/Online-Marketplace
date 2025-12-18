@@ -1,16 +1,19 @@
+const mongoose = require("mongoose");
 const Product = require("../models/productModel");
 const Buyer = require("../models/buyerModel");
 
 const getAllProducts = async (req, res) => {
   try {
-    // console.log(req.params.id);
+    const { buyerId } = req.params;
 
-    const buyer = await Buyer.findById(req.params.id);
+    // if (!mongoose.Types.ObjectId.isValid(buyerId)) {
+    //   return res.status(400).json({ message: "Invalid buyer ID" });
+    // }
+
+    const buyer = await Buyer.findById(buyerId);
     if (!buyer) {
       return res.status(404).json({ message: "Buyer not found" });
     }
-
-    const buyerLocation = buyer.location;
 
     const products = await Product.aggregate([
       { $match: { quantity: { $gt: 0 } } },
@@ -19,7 +22,7 @@ const getAllProducts = async (req, res) => {
         $lookup: {
           from: "sellers",
           localField: "S_ID",
-          foreignField: "id",
+          foreignField: "_id",   // ✅ FIX
           as: "seller"
         }
       },
@@ -27,13 +30,11 @@ const getAllProducts = async (req, res) => {
 
       {
         $match: {
-          "seller.location": buyerLocation
+          "seller.location": buyer.location
         }
       },
 
-      {
-        $project: { seller: 0 }
-      }
+      { $project: { seller: 0 } }
     ]);
 
     res.json(products);
@@ -42,13 +43,20 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-
-
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params._id);
-    if (!product)
+    const { productId } = req.params;
+
+    // if (!mongoose.Types.ObjectId.isValid(productId)) {
+    //   return res.status(400).json({ message: "Invalid product ID" });
+    // }
+
+    const product = await Product.findById(productId)
+      .populate("S_ID", "email location");
+
+    if (!product) {
       return res.status(404).json({ message: "Product not found" });
+    }
 
     res.json(product);
   } catch (err) {
@@ -58,11 +66,17 @@ const getProductById = async (req, res) => {
 
 const addRating = async (req, res) => {
   try {
+    const { productId } = req.params;
     const { rating } = req.body;
 
-    const product = await Product.findById(req.params._id);
-    if (!product)
+    // if (!mongoose.Types.ObjectId.isValid(productId)) {
+    //   return res.status(400).json({ message: "Invalid product ID" });
+    // }
+
+    const product = await Product.findById(productId);
+    if (!product) {
       return res.status(404).json({ message: "Product not found" });
+    }
 
     product.sum_rating += Number(rating);
     product.number_rating += 1;
@@ -81,6 +95,5 @@ const addRating = async (req, res) => {
 module.exports = {
   getAllProducts,
   getProductById,
-  // addComment,
   addRating,
 };

@@ -14,7 +14,7 @@ const RecentOrders = ({ orders}) => {
             <div key={order._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div>
                 <p className="font-medium text-gray-900">Order #{order._id.slice(-6)}</p>
-                <p className="text-sm text-gray-600">{order.S_ID}</p>
+                <p className="text-sm text-gray-600">{order.S_ID.email}</p>
               </div>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                 order.Status === 'delivered' ? 'bg-green-100 text-green-800' :

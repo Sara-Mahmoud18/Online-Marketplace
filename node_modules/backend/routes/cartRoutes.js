@@ -5,7 +5,6 @@ const {
   addToCart,
   removeItem,
   removeSellerItems,
-  deleteCart,
 } = require("../controllers/cart");
 
 router.get("/:buyerId", getCart);

@@ -4,6 +4,6 @@ const { addComment, getCommentsByProduct } = require("../controllers/comment");
 
 
 router.post("/comments", addComment);
-router.get("/comments/:_id", getCommentsByProduct);
+router.get("/comments/:productId", getCommentsByProduct);
 
 module.exports = router;

@@ -23,7 +23,7 @@ const OrderCard = ({ order, flagSeller }) => {
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Order #{order._id.slice(-8)}</h3>
-          <p className="text-sm text-gray-600 mt-1">Seller: {order.S_ID}</p>
+          <p className="text-sm text-gray-600 mt-1">Seller: {order.S_ID.email}</p>
           <p>Products:</p>
           <div className="space-y-1 pb-2">
             {

@@ -37,11 +37,15 @@ const App = () => {
     // Fetch cart
     useEffect(() => {
         if (!logged) return;
-        fetch(`http://localhost:5000/api/cart/${_id}`)
-            .then(res => res.json())
-            .then(data => setCart(data))
-            .catch(err => console.log(err));
+        fetch(`http://localhost:5000/api/orders/${_id}`)
+            .then(res => res.ok ? res.json() : [])
+            .then(data => setOrders(Array.isArray(data) ? data : []))
+            .catch(err => {
+                console.log(err);
+                setOrders([]);
+            });
     }, [logged]);
+
 
     // Fetch orders
     useEffect(() => {
@@ -200,7 +204,9 @@ const App = () => {
             setOrders(prev => [...prev, orderData]);
 
             // Remove only the items belonging to this seller from the local cart
-            setCart(prev => prev.filter((it) => it.S_ID !== sellerId));
+            // setCart(prev =>
+            //     prev.filter(it => it.S_ID !== sellerId && String(it.S_ID) !== String(sellerId))
+            // );
 
             alert("Order placed successfully!");
 
@@ -212,10 +218,11 @@ const App = () => {
 
     // Flag a seller in backend
     const flagSeller = (sellerId, reason) => {
-        fetch('http://localhost:5000/api/buyers/flag-seller', {
+        // console.log("Flagging seller:", sellerId._id, "for reason:", reason);
+        fetch('http://localhost:5000/api/buyers/flagged-sellers', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ buyerId: _id, sellerId, reason })
+            body: JSON.stringify({ buyerId: _id, sellerId: sellerId._id, reason })
         })
             .then(res => {
                 res.json();
