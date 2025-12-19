@@ -22,7 +22,7 @@ const App = () => {
     const [cart, setCart] = useState([]);
     const [logged, setlog] = useState(false);
     const [_id, setID] = useState("");
-
+    const [loggedUser, setLoggedUser] = useState(null);
 
 
     // Fetch products
@@ -110,6 +110,7 @@ const App = () => {
                 const data = await res.json();
                 setlog(true);
                 setID(data.user.id);
+                setLoggedUser(data.user); 
                 return { success: true, data };
             } else {
                 const errData = await res.json();
@@ -132,7 +133,9 @@ const App = () => {
                 const data = await res.json();
                 setlog(true);
                 setID(data.user.id);
-                // console.log("Logged in with ID:", data.user.id);
+                // console.log("user:",data.user.flagCount);
+                setLoggedUser(data.user); 
+                // console.log("user2:",loggedUser);
                 return { success: true, data };
             } else {
                 const errData = await res.json();
@@ -146,6 +149,7 @@ const App = () => {
     const handleLogout = () => {
         setlog(false);
         setID("");
+        setLoggedUser(null);
         return true;
     }
 
@@ -257,7 +261,8 @@ const App = () => {
                             path="/dashboard"
                             element={
                                 <ProtectedRoute islogged={logged}>
-                                    <DashboardView orders={orders} />
+                                    <DashboardView orders={orders} 
+                                    flagCount={loggedUser?.flagCount || 0} />
                                 </ProtectedRoute>
                             }
                         />
@@ -265,7 +270,6 @@ const App = () => {
                             path="/orders"
                             element={
                                 <ProtectedRoute islogged={logged}>
-
                                     <OrdersView orders={orders} flagSeller={flagSeller} />
                                 </ProtectedRoute>
                             }
