@@ -35,13 +35,31 @@ exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // 1. Find the buyer
     const buyer = await Buyer.findOne({ username });
-    if (!buyer) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!buyer) return res.status(400).json({ message: 'Wrong username' });
 
+    // 2. NEW: Check if the buyer is blocked due to flags
+    if (buyer.FlagS && buyer.FlagS.length > 50) {
+      return res.status(403).json({ 
+        message: 'This account has been suspended due to multiple reports from sellers.' 
+      });
+    }
+
+    // 3. Verify password
     const isMatch = await bcrypt.compare(password, buyer.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!isMatch) return res.status(400).json({ message: 'Wrong password' });
+    // console.log(buyer.FlagS ? buyer.FlagS.length : 0);
+    // 4. Success
     res.status(200).json({
-      user: { id: buyer._id, username: buyer.username, email: buyer.email, location: buyer.location, phone: buyer.phone }
+      user: { 
+        id: buyer._id, 
+        username: buyer.username, 
+        email: buyer.email, 
+        location: buyer.location, 
+        phone: buyer.phone,
+        flagCount: buyer.FlagS ? buyer.FlagS.length : 0
+      }
     });
   } catch (err) {
     console.error(err);
