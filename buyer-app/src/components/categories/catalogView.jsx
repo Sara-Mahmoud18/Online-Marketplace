@@ -1,223 +1,248 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import AICommentSummarizer from "../ai/AICommentSummarizer";
+import ProductComments from "../comments/ProductComments";
 
 const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
-    const { productId } = useParams();
-    const navigate = useNavigate();
-    const product = products.find(p => p._id === productId);
+  const { productId } = useParams();
+  const navigate = useNavigate();
 
-    if (!product) {
-        return (
-            <div className="p-10 text-center text-xl">
-                Product not found. Please select an item from the Categories view.
-            </div>
+  const product = products.find(p => p._id === productId);
+
+  if (!product) {
+    return (
+      <div className="p-10 text-center text-xl">
+        Product not found. Please select an item from the Categories view.
+      </div>
+    );
+  }
+
+  /* ---------------- STATE ---------------- */
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+  const [quantity, setQuantity] = useState(1);
+  const [showComments, setShowComments] = useState(false);
+
+  const sum = product.sum_rating || 0;
+  const count = product.number_rating || 0;
+  const averageRating = count === 0 ? 0 : sum / count;
+
+  /* ---------------- FETCH COMMENTS ---------------- */
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/comments/${productId}`
         );
+        const data = await res.json();
+        setComments(data);
+      } catch (err) {
+        console.error("Failed to fetch comments", err);
+      }
+    };
+
+    fetchComments();
+  }, [productId]);
+
+  /* ---------------- RATING ---------------- */
+  const handleRatingSubmit = async () => {
+    if (rating === 0) return alert("Please select a rating");
+
+    try {
+      await fetch(
+        `http://localhost:5000/api/products/${productId}/rate`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rating })
+        }
+      );
+      alert("Rating submitted successfully");
+    } catch (err) {
+      console.error("Rating failed", err);
+    }
+  };
+
+  /* ---------------- COMMENT ---------------- */
+  const handleCommentSubmit = async () => {
+    if (!comment.trim()) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          b_id: buyerId,
+          text: comment,
+          productId
+        })
+      });
+
+      if (res.status === 201) {
+        const newComment = {
+          text: comment,
+          b_id: { _id: buyerId },
+          date: new Date().toISOString()
+        };
+
+        setComments(prev => [...prev, newComment]);
+        setComment("");
+      }
+    } catch (err) {
+      console.error("Comment failed", err);
+    }
+  };
+
+  /* ---------------- CART ---------------- */
+  const onAddToCart = () => {
+    if (quantity > product.quantity) {
+      return alert(`Max quantity is ${product.quantity}`);
     }
 
-    const [rating, setRating] = useState(product.userRating || 0);
-    const [comment, setComment] = useState('');
-    // const [comments, setComments] = useState(product.comments || []);
-    const [quantity, setQuantity] = useState(1);
-
-    const sum = product.sum_rating || 0;
-    const count = product.number_rating || 0;
-    const averageRating = count === 0 ? 0 : sum / count;
-
-    const handleRatingSubmit = async () => {
-        if (rating === 0) return alert('Please select a rating first');
-
-        try {
-            const res = await fetch(
-                `http://localhost:5000/api/products/${productId}/rate`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        b_id: buyerId,
-                        rating: rating,
-                    }),
-                }
-            );
-
-            const data = await res.json();
-
-            alert('Rating submitted successfully');
-        } catch (error) {
-            console.error('Failed to submit rating', error);
-        }
+    const newCartItem = {
+      S_ID: product.S_ID,
+      B_ID: buyerId,
+      Product: product._id,
+      Status: "pending",
+      price: product.price,
+      totalPrice: product.price * quantity,
+      quantity
     };
 
+    onAddToCartHandler(newCartItem);
+    alert("Added to cart");
+  };
 
-    const handleCommentSubmit = async () => {
-        if (comment.trim() === '') return;
+  /* ---------------- NORMALIZE FOR AI ---------------- */
+  const normalizedComments = comments.map(c => ({
+    text: c.text,
+    date: c.date,
+    userId: c.b_id?._id || c.b_id
+  }));
 
-        try {
-            const res = await fetch(
-            `http://localhost:5000/api/comments`,
-            {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                b_id: buyerId,
-                text: comment,
-                productId: productId,
-                }),
-            }
-            );
+  /* ---------------- RENDER ---------------- */
+  return (
+    <div className="container mx-auto p-4 bg-gray-50 min-h-screen">
 
-            if (res.status === 201) {
-                alert("Comment is added");
-            }
+      <button
+        onClick={() => navigate("/catalog")}
+        className="mb-4 text-indigo-600 font-semibold"
+      >
+        ← Back to Categories
+      </button>
 
-        } catch (error) {
-            console.error('Failed to add comment', error);
-        }
+      {/* PRODUCT CARD */}
+      <div className="bg-white shadow rounded-xl p-8 mb-8 grid md:grid-cols-2 gap-8">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="max-h-96 object-contain mx-auto"
+        />
 
-    };
+        <div>
+          <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
 
+          <div className="flex items-center mb-3">
+            <span className="text-yellow-400 text-xl">★</span>
+            <span className="ml-2 text-gray-600">
+              {averageRating.toFixed(1)} / 5 ({count})
+            </span>
+          </div>
 
-    const onAddToCart = () => {
-        if (quantity <= product.quantity) {
-            const newCartItem = {
-                S_ID: product.S_ID,
-                B_ID: buyerId,
-                Product: product._id,
-                Status: "pending",
-                price: product.price,
-                totalPrice: product.price * quantity,
-                quantity: quantity
-            };
+          <p className="text-3xl text-indigo-700 font-bold mb-4">
+            ${product.price.toFixed(2)}
+          </p>
 
-            if (onAddToCartHandler) {
-                onAddToCartHandler(newCartItem);
-                alert(`Added ${quantity} x ${product.name} to cart successfully!`);
-            } else {
-                alert("Error: Cart update handler not provided.");
-            }
-        }
-        else alert(`Please choose a quantity number equal to or smaller than the product's quantity (${product.quantity})`);
+          <p className="mb-4">{product.description}</p>
 
-    };
-    // console.log(products)
-    return (
-        <div className="container mx-auto p-4 sm:p-6 bg-gray-50 min-h-screen">
+          <p className="mb-4">
+            <strong>Available:</strong> {product.quantity}
+          </p>
 
-            <button
-                onClick={() => navigate('/catalog')}
-                className="mb-4 text-indigo-600 hover:text-indigo-800 font-semibold flex items-center"
-            >
-                &larr; Back to Categories
-            </button>
+          <input
+            type="number"
+            min="1"
+            max={product.quantity}
+            value={quantity}
+            onChange={e => setQuantity(+e.target.value || 1)}
+            className="w-20 border rounded p-2 mr-4"
+          />
 
+          <button
+            onClick={onAddToCart}
+            className="bg-indigo-600 text-white px-6 py-2 rounded"
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
 
-            <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-xl overflow-hidden">
-                <div className="grid md:grid-cols-2 gap-8 p-8">
-                    <div className="flex justify-center items-center bg-gray-100 rounded-lg p-4">
-                        <img
-                            src={product.image}
-                            alt={product.name}
-                            className="max-h-96 object-contain rounded-lg shadow-md"
-                        />
-                    </div>
+      {/* AI SUMMARY */}
+      <AICommentSummarizer
+        productId={productId}
+        productName={product.name}
+        externalComments={normalizedComments}
+      />
 
-                    <div className="flex flex-col justify-between">
-                        <div>
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
-                                {product.name}
-                            </h1>
+      {/* COMMENTS */}
+      <div className="mt-8 text-center">
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="px-6 py-3 bg-gray-200 rounded"
+        >
+          {showComments ? "Hide Comments" : "Show Comments"} ({comments.length})
+        </button>
+      </div>
 
-                            <div className="flex items-center mb-4">
-                                <span className="text-yellow-400 text-xl">★</span>
-                                <span className="ml-2 text-sm font-medium text-gray-600">
-                                    {averageRating.toFixed(1)} / 5 ({count} reviews)
-                                </span>
-                            </div>
+      {showComments && (
+        <div className="mt-6">
+          <ProductComments comments={comments} />
 
-                            <p className="text-3xl font-bold text-indigo-700 mb-6">
-                                ${product.price.toFixed(2)}
-                            </p>
+          {product.orderedBefore && (
+            <div className="bg-white p-6 mt-8 rounded shadow">
+              <h3 className="text-xl font-bold mb-4">Leave a Review</h3>
 
-                            <p className="text-gray-700 mb-6 border-b pb-4">
-                                {product.description}
-                            </p>
+              <div className="flex gap-2 mb-4">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className={`text-3xl ${
+                      star <= rating ? "text-yellow-400" : "text-gray-300"
+                    }`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
 
-                            <div className="space-y-2 text-gray-800 mb-6">
-                                <p><span className="font-semibold">Quantity Available:</span> {product.quantity}</p>
-                                <p><span className="font-semibold">Estimated Delivery: </span>
-                                    {product.estimated_DT ? product.estimated_DT : 1} days
-                                </p>
-                            </div>
-                        </div>
-                        <div className="mb-6">
-                            <label className="block text-gray-700 font-semibold mb-2" htmlFor="quantity-input">Quantity:</label>
-                            <input
-                                id="quantity-input"
-                                type="number"
-                                min="1"
-                                max={product.quantity} // Added max attribute for better UX
-                                value={quantity}
-                                onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                                className="w-20 border rounded-lg p-2 text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-                        <button
-                            onClick={onAddToCart}
-                            className="w-full md:w-auto bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 transition"
-                        >
-                            Add to Cart
-                        </button>
+              <button
+                onClick={handleRatingSubmit}
+                className="bg-green-600 text-white px-4 py-2 rounded mb-4"
+              >
+                Submit Rating
+              </button>
 
-                    </div>
-                </div>
+              <textarea
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+                className="w-full border rounded p-3 mb-4"
+                placeholder="Write a comment..."
+              />
 
-                {product.orderedBefore && (
-                    <div>
-                        <div className="mt-8 border-t pt-6 p-4">
-                            <h2 className="text-xl font-bold mb-4">Rate this product</h2>
-                            <div className="flex items-center gap-4 mb-4">
-                                {[1, 2, 3, 4, 5].map(star => (
-                                    <button
-                                        key={star}
-                                        onClick={() => setRating(star)}
-                                        className={`text-2xl ${star <= rating ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-500`}
-                                    >
-                                        ★
-                                    </button>
-                                ))}
-                            </div>
-                            <button
-                                onClick={handleRatingSubmit}
-                                className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition"
-                            >
-                                Submit Rating
-                            </button>
-                        </div>
-
-                        <div className="mt-8 border-t pt-6 p-4">
-                            <h2 className="text-xl font-bold mb-4">Add a Comment</h2>
-                            <textarea
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                placeholder="Leave a comment..."
-                                className="w-full border rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                            <button
-                                onClick={handleCommentSubmit}
-                                className="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition"
-                            >
-                                Add Comment
-                            </button>
-                        </div>
-                    </div>
-                )
-                }
-            </div >
-        </div >
-    );
+              <button
+                onClick={handleCommentSubmit}
+                className="bg-blue-600 text-white px-6 py-2 rounded"
+              >
+                Post Comment
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default ProductDetailPage;
