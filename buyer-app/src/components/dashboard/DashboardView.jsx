@@ -33,4 +33,8 @@ const DashboardView = ({ orders, flagCount }) => {
   );
 };
 
+<<<<<<< HEAD
 export default DashboardView;
+=======
+export default DashboardView;
+>>>>>>> 75cd1e026c71340e749b9e58fd7614d9fb4154cc

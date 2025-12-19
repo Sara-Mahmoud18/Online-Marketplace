@@ -65,4 +65,8 @@ exports.login = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 75cd1e026c71340e749b9e58fd7614d9fb4154cc

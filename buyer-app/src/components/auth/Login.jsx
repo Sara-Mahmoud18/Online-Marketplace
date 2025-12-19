@@ -84,4 +84,8 @@ const Login = ({ onLoginHandler }) => {
   );
 };
 
+<<<<<<< HEAD
 export default Login;
+=======
+export default Login;
+>>>>>>> 75cd1e026c71340e749b9e58fd7614d9fb4154cc
