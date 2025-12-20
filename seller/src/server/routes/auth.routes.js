@@ -1,7 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import Seller from "../models/Seller.js";
+import Seller from "../models/sellerModel.js";
 
 const router = express.Router();
 const JWT_SECRET = "MY_SECRET_KEY";

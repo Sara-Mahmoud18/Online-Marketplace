@@ -1,6 +1,6 @@
-import Seller from "../models/Seller.js";
-import Buyer from "../models/Buyer.js";
-import Order from "../models/Order.js";
+import Seller from "../models/sellerModel.js";
+import Buyer from "../models/buyerModel.js";
+import Order from "../models/orderModel.js";
 
 /**
  * GET /seller/profile

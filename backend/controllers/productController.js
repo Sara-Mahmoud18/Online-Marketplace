@@ -1,5 +1,5 @@
-import Product from "../models/Product.js";
-import Seller from "../models/Seller.js";
+import Product from "../models/productModel.js";
+import Seller from "../models/sellerModel.js";
 
 export const getSellerProducts = async (req, res) => {
   const products = await Product.find({ S_ID: req.sellerId });

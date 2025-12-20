@@ -1,4 +1,4 @@
-import Seller from "../models/Seller.js";
+import Seller from "../models/sellerModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 

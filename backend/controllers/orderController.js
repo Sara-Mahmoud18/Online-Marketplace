@@ -1,5 +1,5 @@
-import Order from "../models/Order.js";
-import Buyer from "../models/Buyer.js";
+import Order from "../models/orderModel.js";
+import Buyer from "../models/buyerModel.js";
 
 /**
  * GET /seller/orders
