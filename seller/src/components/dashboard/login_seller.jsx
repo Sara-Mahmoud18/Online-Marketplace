@@ -41,32 +41,27 @@ const AuthPage = ({ setIsLoggedIn }) => {
           return;
         }
 
-
+        // Auto-login after signup
         const loginRes = await fetch("http://localhost:5000/seller/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             username: formData.username,
-            password: formData.password
+            password: formData.password,
           }),
         });
 
         const loginData = await loginRes.json();
-
         if (!loginRes.ok) {
           setMessage({ type: "error", text: loginData.message || "Login failed after Sign Up" });
           return;
         }
 
         localStorage.setItem("token", loginData.token);
-
-
-        localStorage.setItem(
-          "sellerFlagsCount",
-          loginData.flagB?.length || 0
-        );
+        localStorage.setItem("sellerFlagsCount", loginData.flags || 0);
 
         setIsLoggedIn(true);
+
       } else {
         // Login
         if (!formData.username || !formData.password) {
@@ -74,11 +69,12 @@ const AuthPage = ({ setIsLoggedIn }) => {
           return;
         }
 
-        const loginRes = await fetch("http://localhost:5000/login", {
+        const loginRes = await fetch("http://localhost:5000/seller/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username: formData.username, password: formData.password }),
         });
+
         const loginData = await loginRes.json();
 
         if (!loginRes.ok) {
@@ -87,12 +83,7 @@ const AuthPage = ({ setIsLoggedIn }) => {
         }
 
         localStorage.setItem("token", loginData.token);
-
-
-        localStorage.setItem(
-          "sellerFlagsCount",
-          loginData.flags || 0
-        );
+        localStorage.setItem("sellerFlagsCount", loginData.flags || 0);
 
         setIsLoggedIn(true);
       }
@@ -110,10 +101,11 @@ const AuthPage = ({ setIsLoggedIn }) => {
 
         {message.text && (
           <div
-            className={`mb-4 p-2 text-center rounded ${message.type === "error"
-              ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700"
-              }`}
+            className={`mb-4 p-2 text-center rounded ${
+              message.type === "error"
+                ? "bg-red-100 text-red-700"
+                : "bg-green-100 text-green-700"
+            }`}
           >
             {message.text}
           </div>
