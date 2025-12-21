@@ -4,7 +4,7 @@ import RecentOrders from './RecentOrders';
 import { Clock, AlertTriangle } from 'lucide-react';
 
 const DashboardView = ({ orders, flagCount }) => {
-  const activeOrders = orders.filter(o => o.Status !== 'delivered').length;
+  const activeOrders = orders.filter(o => o.Status !== 'Delivered').length;
 
   return (
     <div>
@@ -33,12 +33,5 @@ const DashboardView = ({ orders, flagCount }) => {
   );
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 export default DashboardView;
-=======
-export default DashboardView;
->>>>>>> 75cd1e026c71340e749b9e58fd7614d9fb4154cc
-=======
-export default DashboardView;
->>>>>>> 75cd1e026c71340e749b9e58fd7614d9fb4154cc

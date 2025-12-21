@@ -7,9 +7,9 @@ const buyerSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   phone: { type: String },
   FlagS: [{
-    sellerId: { type: String },
-    reason: { type: String }
-  }, { _id: false }],
+  sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "Seller" },
+  reason: String
+}],
 },{ versionKey: false }, { timestamps: true });
 
 module.exports = mongoose.model('Buyer', buyerSchema);

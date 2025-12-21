@@ -28,33 +28,82 @@ const App = () => {
     const res = await fetch(`${API}/seller/products`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        setIsLoggedIn(false);
+      }
+      setProducts([]);
+      setCategories([]);
+      return;
+    }
+
     const data = await res.json();
+
+    if (!Array.isArray(data)) {
+      setProducts([]);
+      setCategories([]);
+      return;
+    }
+
     setProducts(data);
     setCategories([...new Set(data.map((p) => p.category))]);
   };
 
   // ================= ORDERS =================
   const fetchOrders = async (token) => {
+    if (!token) {
+      console.error("No token provided");
+      return;
+    }
+
     const res = await fetch(`${API}/seller/orders`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        console.error("Unauthorized: Token missing or invalid");
+        localStorage.removeItem("token");
+        setIsLoggedIn(false);
+      }
+      setOrders([]);
+      return;
+    }
+
     const data = await res.json();
-    setOrders(data);
+    setOrders(Array.isArray(data) ? data : []);
   };
+
 
   // ================= FLAGGED BUYERS =================
   const fetchFlaggedBuyers = async (token) => {
     const res = await fetch(`${API}/seller/flags`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        setIsLoggedIn(false);
+      }
+      setFlaggedBuyers([]);
+      return;
+    }
+
     const data = await res.json();
-    setFlaggedBuyers(data);
+    setFlaggedBuyers(Array.isArray(data) ? data : []);
   };
 
   // ================= AUTH CHECK =================
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (!token) {
+      setIsLoggedIn(false);
       setHasAuthChecked(true);
       return;
     }
@@ -71,7 +120,6 @@ const App = () => {
 
       setIsLoggedIn(true);
     } catch (err) {
-      console.error("Invalid token:", err);
       localStorage.removeItem("token");
       setIsLoggedIn(false);
       setHasAuthChecked(true);

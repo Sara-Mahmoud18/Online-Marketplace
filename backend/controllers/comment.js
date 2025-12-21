@@ -1,4 +1,4 @@
-const Product = require("../models/productModel");
+const Product = require('../models/productModel').default;
 const Comment = require("../models/commentModel");
 
 const addComment = async (req, res) => {

@@ -179,7 +179,7 @@ const ProductsView = () => {
             <p>{selectedProduct.description}</p>
             <p>Category: {selectedProduct.category}</p>
             <p>Quantity: {selectedProduct.quantity}</p>
-            <p>Price: ${selectedProduct.Price}</p>
+            <p>Price: ${selectedProduct.price}</p>
           </div>
         </div>
       )}

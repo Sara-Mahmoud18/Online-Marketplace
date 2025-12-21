@@ -120,7 +120,7 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
     date: c.date,
     userId: c.b_id?._id || c.b_id
   }));
-
+  // console.log(product.orderedBefore)
   /* ---------------- RENDER ---------------- */
   return (
     <div className="container mx-auto p-4 bg-gray-50 min-h-screen">

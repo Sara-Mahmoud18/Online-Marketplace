@@ -57,20 +57,23 @@ const ProductForm = ({ onSubmit, onClose, initialData = null }) => {
     setImagePreview(null);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = (e) => {
+  e.preventDefault();
 
-    onSubmit({
-  ...formData,
-  Price: Number(formData.Price),
-  quantity: Number(formData.quantity),
-  deliveryDays: Number(formData.deliveryDays),
-  _id: initialData?._id,
-});
+  onSubmit({
+    name: formData.name,
+    description: formData.description,
+    category: formData.category,
+    price: Number(formData.Price),              // غيّر الاسم هنا
+    quantity: Number(formData.quantity),
+    estimated_DT: Number(formData.deliveryDays), // غيّر الاسم هنا
+    image: formData.image || undefined,
+    _id: initialData?._id,
+  });
 
+  onClose();
+};
 
-    onClose();
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">

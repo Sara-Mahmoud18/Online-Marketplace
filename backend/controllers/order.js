@@ -1,5 +1,5 @@
 const Order = require('../models/orderModel');
-const Products = require('../models/productModel');
+const Product = require('../models/productModel').default;
 
 // GET ORDERS BY BUYER
 const getOrderByBuyer = async (req, res) => {
@@ -12,7 +12,7 @@ const getOrderByBuyer = async (req, res) => {
     // get all unique product IDs
     const productIds = orders.flatMap(o => o.Product);
 
-    const products = await Products.find(
+    const products = await Product.find(
       { _id: { $in: productIds } },
       { name: 1 }
     );
@@ -38,17 +38,13 @@ const getOrderByBuyer = async (req, res) => {
 // CREATE ORDER
 const createOrder = async (req, res) => {
   try {
-    const { Product, quantity } = req.body;
+    const { Product: productIds, quantity } = req.body;
 
-    for (let i = 0; i < Product.length; i++) {
-      const productId = Product[i];
+    for (let i = 0; i < productIds.length; i++) {
+      const productId = productIds[i];
       const qtyToReduce = quantity[i];
 
-      // if (!mongoose.Types.ObjectId.isValid(productId)) {
-      //   return res.status(400).json({ message: "Invalid product ID" });
-      // }
-
-      const productDoc = await Products.findById(productId);
+      const productDoc = await Product.findById(productId); // now uses the model
 
       if (!productDoc || productDoc.quantity < qtyToReduce) {
         return res.status(400).json({
@@ -68,6 +64,7 @@ const createOrder = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 module.exports = {
   getOrderByBuyer,

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Product = require("../models/productModel");
+const Product = require('../models/productModel').default;
 const Buyer = require("../models/buyerModel");
 
 const getAllProducts = async (req, res) => {
@@ -7,12 +7,15 @@ const getAllProducts = async (req, res) => {
     const { buyerId } = req.params;
 
     const buyer = await Buyer.findById(buyerId);
-    if (!buyer) return res.status(404).json({ message: "Buyer not found" });
+    if (!buyer) {
+      return res.status(404).json({ message: "Buyer not found" });
+    }
 
     const products = await Product.aggregate([
+      // Products in stock
       { $match: { quantity: { $gt: 0 } } },
 
-      // Join seller info
+      // Join seller
       {
         $lookup: {
           from: "sellers",
@@ -23,20 +26,53 @@ const getAllProducts = async (req, res) => {
       },
       { $unwind: "$seller" },
 
-      // Only sellers in the buyer's location
+      // Seller location filter
       { $match: { "seller.location": buyer.location } },
 
-      // Join orders for this buyer
+      // Lookup delivered orders for this buyer & product
       {
         $lookup: {
           from: "orders",
-          let: { productId: "$_id" },
+          let: {
+            productId: "$_id",
+            buyerId: buyer._id,
+          },
           pipeline: [
-            { $match: { B_ID: buyer._id } },
-            { $project: { Product: 1 } },
+            // Match buyer
             {
               $match: {
-                $expr: { $in: ["$$productId", "$Product"] },
+                $expr: {
+                  $eq: ["$B_ID", "$$buyerId"],
+                },
+              },
+            },
+
+            // Match delivered only (CORRECT field name)
+            {
+              $match: {
+                Status: "Delivered",
+              },
+            },
+
+            // Flatten Product array: [[ObjectId]] → [ObjectId]
+            {
+              $addFields: {
+                flatProducts: {
+                  $reduce: {
+                    input: "$Product",
+                    initialValue: [],
+                    in: { $concatArrays: ["$$value", "$$this"] },
+                  },
+                },
+              },
+            },
+
+            // Check if current product exists in flattened array
+            {
+              $match: {
+                $expr: {
+                  $in: ["$$productId", "$flatProducts"],
+                },
               },
             },
           ],
@@ -44,19 +80,27 @@ const getAllProducts = async (req, res) => {
         },
       },
 
-      // Add a flag if the buyer ordered this product
+      // orderedBefore flag
       {
         $addFields: {
-          orderedBefore: { $gt: [{ $size: "$previousOrders" }, 0] },
+          orderedBefore: {
+            $gt: [{ $size: "$previousOrders" }, 0],
+          },
         },
       },
 
-      // Remove fields we don't want to return
-      { $project: { seller: 0, previousOrders: 0 } },
+      // Cleanup
+      {
+        $project: {
+          seller: 0,
+          previousOrders: 0,
+        },
+      },
     ]);
 
-    res.json(products);
+    res.status(200).json(products);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };

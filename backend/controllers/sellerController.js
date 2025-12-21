@@ -37,7 +37,11 @@ export const updateProfile = async (req, res) => {
 export const getStatus = async (req, res) => {
   try {
     const seller = await Seller.findById(req.sellerId);
-    const flags = seller.FlagB.length;
+
+    if (!seller)
+      return res.status(404).json({ message: "Seller not found" });
+
+    const flags = seller.FlagB?.length || 0;
 
     let status = "NORMAL";
     if (flags >= 7) status = "BANNED";
@@ -46,9 +50,11 @@ export const getStatus = async (req, res) => {
 
     res.json({ flags, status });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 /**
  * GET /seller/flags
@@ -56,15 +62,18 @@ export const getStatus = async (req, res) => {
 export const getFlaggedBuyers = async (req, res) => {
   try {
     const seller = await Seller.findById(req.sellerId)
-      .populate("FlagB.b_id", "username email phone");
+      .populate("FlagB.buyerId", "username email phone");
 
-    if (!seller) return res.status(404).json({ message: "Seller not found" });
+    if (!seller)
+      return res.status(404).json({ message: "Seller not found" });
 
-    res.json(seller.FlagB);
+    res.json(seller.FlagB || []);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 /**
  * POST /seller/flag-buyer
@@ -82,12 +91,12 @@ export const flagBuyer = async (req, res) => {
     if (!buyer) return res.status(404).json({ message: "Buyer not found" });
 
     const alreadyFlagged = buyer.FlagS.some(
-      f => f.Sellerid.toString() === req.sellerId
+      f => f.sellerId.toString() === req.sellerId
     );
     if (alreadyFlagged)
       return res.status(400).json({ message: "Buyer already flagged" });
 
-    buyer.FlagS.push({ Sellerid: req.sellerId, reason });
+    buyer.FlagS.push({ sellerId: req.sellerId, reason });
     await buyer.save();
 
     res.json({ message: "Buyer flagged successfully" });
@@ -109,7 +118,7 @@ export const removeFlag = async (req, res) => {
     const buyer = await Buyer.findById(order.B_ID);
 
     const index = buyer.FlagS.findIndex(
-      f => f.Sellerid.toString() === req.sellerId
+      f => f.sellerId.toString() === req.sellerId
     );
 
     if (index === -1)

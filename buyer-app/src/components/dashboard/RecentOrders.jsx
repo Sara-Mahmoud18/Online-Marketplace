@@ -17,8 +17,8 @@ const RecentOrders = ({ orders}) => {
                 <p className="text-sm text-gray-600">{order.S_ID.email}</p>
               </div>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                order.Status === 'delivered' ? 'bg-green-100 text-green-800' :
-                order.Status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                order.Status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                order.Status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
                 'bg-yellow-100 text-yellow-800'
               }`}>
                 {order.Status}
