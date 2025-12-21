@@ -1,16 +1,5 @@
 
 import React from "react";
-// function formatCurrency(value) {
-//   try {
-//     return new Intl.NumberFormat("en-US", {
-//       style: "currency",
-//       currency: "USD",
-//       minimumFractionDigits: 0,
-//     }).format(value);
-//   } catch {
-//     return `$${value}`;
-//   }
-// }
 
 function groupBySeller(items = []) {
   return items.reduce((acc, item) => {
@@ -77,7 +66,7 @@ const Cart = ({
                   >
                     <div>
                       <div className="font-medium text-gray-900">
-                        {item.Product?.name ?? "Unknown product"}
+                        {item.Product?.name ?? `Product ID: ${item.Product}`}
                       </div>
 
                       <div className="text-sm text-gray-500">

@@ -15,7 +15,7 @@ const ProductsView = () => {
   // ===== Fetch Products =====
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:5000/seller/products', {
+      const res = await fetch('http://localhost:5001/seller/products', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -55,7 +55,7 @@ const ProductsView = () => {
     try {
       if (productData._id) {
         await fetch(
-          `http://localhost:5000/seller/products/${productData._id}`,
+          `http://localhost:5001/seller/products/${productData._id}`,
           {
             method: 'PUT',
             headers: {
@@ -66,7 +66,7 @@ const ProductsView = () => {
           }
         );
       } else {
-        await fetch('http://localhost:5000/seller/products', {
+        await fetch('http://localhost:5001/seller/products', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const ProductsView = () => {
   const handleDeleteProduct = async (id) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/seller/products/${id}`,
+        `http://localhost:5001/seller/products/${id}`,
         {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },

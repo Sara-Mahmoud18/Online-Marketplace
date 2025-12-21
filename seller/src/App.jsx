@@ -21,7 +21,7 @@ const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentSellerId, setCurrentSellerId] = useState(null);
 
-  const API = "http://localhost:5000";
+  const API = "http://localhost:5001";
 
   // ================= PRODUCTS =================
   const fetchProducts = async (token) => {

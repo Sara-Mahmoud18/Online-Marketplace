@@ -18,7 +18,7 @@ const OrdersView = ({ orders, setOrders }) => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `http://localhost:5000/seller/orders/${orderId}/status`,
+        `http://localhost:5001/seller/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: {
@@ -53,7 +53,7 @@ const OrdersView = ({ orders, setOrders }) => {
 
     const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:5000/seller/flag-buyer", {
+    const res = await fetch("http://localhost:5001/seller/flag-buyer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +71,7 @@ const OrdersView = ({ orders, setOrders }) => {
   const handleRemoveFlag = async (order) => {
     const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:5000/seller/remove-flag", {
+    const res = await fetch("http://localhost:5001/seller/remove-flag", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

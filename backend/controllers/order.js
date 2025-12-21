@@ -7,26 +7,21 @@ const getOrderByBuyer = async (req, res) => {
     const { buyerId } = req.params;
 
     const orders = await Order.find({ B_ID: buyerId })
-      .populate("S_ID", "email");
+      .populate("S_ID", "email")
+      .populate("Product", "name");
 
-    // get all unique product IDs
-    const productIds = orders.flatMap(o => o.Product);
-
-    const products = await Product.find(
-      { _id: { $in: productIds } },
-      { name: 1 }
-    );
-
-    const productMap = {};
-    products.forEach(p => {
-      productMap[p._id.toString()] = p.name;
+    const formattedOrders = orders.map(order => {
+      const orderObj = order.toObject();
+      
+      return {
+        ...orderObj,
+        // No more .flat() needed! Just map the populated products to their names.
+        // We add a check (p && p.name) to handle deleted products.
+        Product: orderObj.Product.map(p => (p && p.name) ? p.name : "Unknown Product"),
+        // quantity is already a flat array of numbers [1, 2]
+        quantity: orderObj.quantity 
+      };
     });
-
-    // replace product IDs with names
-    const formattedOrders = orders.map(order => ({
-      ...order.toObject(),
-      Product: order.Product.map(pid => productMap[pid] || pid)
-    }));
 
     res.json(formattedOrders);
   } catch (err) {
@@ -44,7 +39,7 @@ const createOrder = async (req, res) => {
       const productId = productIds[i];
       const qtyToReduce = quantity[i];
 
-      const productDoc = await Product.findById(productId); // now uses the model
+      const productDoc = await Product.findById(productId);
 
       if (!productDoc || productDoc.quantity < qtyToReduce) {
         return res.status(400).json({
@@ -59,7 +54,19 @@ const createOrder = async (req, res) => {
     const order = new Order(req.body);
     const savedOrder = await order.save();
 
-    res.status(201).json(savedOrder);
+    const populatedOrder = await Order.findById(savedOrder._id)
+      .populate("S_ID", "email")
+      .populate("Product", "name");
+
+    const orderObj = populatedOrder.toObject();
+
+    const formattedOrder = {
+      ...orderObj,
+      Product: orderObj.Product.map(p => (p && p.name) ? p.name : "Unknown Product"),
+      quantity: orderObj.quantity
+    };
+
+    res.status(201).json(formattedOrder);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

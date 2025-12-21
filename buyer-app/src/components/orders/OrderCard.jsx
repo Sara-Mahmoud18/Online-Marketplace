@@ -27,11 +27,18 @@ const OrderCard = ({ order, flagSeller }) => {
           <p>Products:</p>
           <div className="space-y-1 pb-2">
             {
-              order.Product.map((name, i) => (
-                <p key={`${order._id}-item-${i}`} className="text-sm text-gray-600">
-                  {name} — Qty: {order.quantity[i] ?? "N/A"}
-                </p>
-              ))
+              (order.Product || []).flat().map((item, i) => {
+                const flatQuantities = (order.quantity || []).flat();
+
+                // 2. Extract name safely whether it's an object or just a string
+                const displayName = typeof item === 'object' ? (item?.name || "Unnamed Product") : item;
+
+                return (
+                  <p key={`${order._id}-item-${i}`} className="text-sm text-gray-600">
+                    {displayName} — Qty: {flatQuantities[i] ?? "N/A"}
+                  </p>
+                );
+              })
             }
           </div>
           <hr className='pb-2' />

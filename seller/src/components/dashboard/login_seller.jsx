@@ -29,7 +29,7 @@ const AuthPage = ({ setIsLoggedIn }) => {
           ...(formData.phone && { phone: formData.phone }),
         };
 
-        const signupRes = await fetch("http://localhost:5000/seller/signup", {
+        const signupRes = await fetch("http://localhost:5001/seller/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -42,7 +42,7 @@ const AuthPage = ({ setIsLoggedIn }) => {
         }
 
         // Auto-login after signup
-        const loginRes = await fetch("http://localhost:5000/seller/login", {
+        const loginRes = await fetch("http://localhost:5001/seller/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -69,7 +69,7 @@ const AuthPage = ({ setIsLoggedIn }) => {
           return;
         }
 
-        const loginRes = await fetch("http://localhost:5000/seller/login", {
+        const loginRes = await fetch("http://localhost:5001/seller/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username: formData.username, password: formData.password }),

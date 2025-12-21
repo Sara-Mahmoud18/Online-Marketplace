@@ -12,7 +12,7 @@ const FlaggedView = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch("http://localhost:5000/seller/flags", {
+        const res = await fetch("http://localhost:5001/seller/flags", {
           headers: {
             Authorization: `Bearer ${token}`, 
           },
