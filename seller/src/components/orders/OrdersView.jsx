@@ -62,7 +62,7 @@ const OrdersView = ({ orders, setOrders }) => {
       body: JSON.stringify({ orderId: order._id, reason }),
     });
 
-    if (!res.ok) return alert("Failed to add flag");
+    if (!res.ok) return alert("Failed to add flag, most probably already flagged");
 
     alert("Buyer flagged successfully");
   };

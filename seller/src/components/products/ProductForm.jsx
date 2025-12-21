@@ -1,79 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { Package, X } from 'lucide-react';
+import { Package, X, Link } from 'lucide-react';
 
 const ProductForm = ({ onSubmit, onClose, initialData = null }) => {
   const [formData, setFormData] = useState({
-  name: '',
-  description: '',
-  category: '',
-  Price: '',
-  quantity: '',
-  deliveryDays: '',
-  image: '',
-  _id: null,
-});
-
-
-  const [imagePreview, setImagePreview] = useState(null);
-
-  useEffect(() => {
-  if (initialData) {
-    setFormData({
-      name: initialData.name || '',
-      description: initialData.description || '',
-      category: initialData.category || '',
-      Price: initialData.Price != null ? String(initialData.Price) : '',
-      quantity: initialData.quantity != null ? String(initialData.quantity) : '',
-      deliveryDays: initialData.deliveryDays != null
-        ? String(initialData.deliveryDays)
-        : '',
-      image: initialData.image || '',
-      _id: initialData._id,
-    });
-    setImagePreview(initialData.image || null);
-  }
-}, [initialData]);
-
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (file.size > 3 * 1024 * 1024) {
-      alert('Image too large. Max 3MB.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData({ ...formData, image: reader.result });
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const removeImage = () => {
-    setFormData({ ...formData, image: '' });
-    setImagePreview(null);
-  };
-
- const handleSubmit = (e) => {
-  e.preventDefault();
-
-  onSubmit({
-    name: formData.name,
-    description: formData.description,
-    category: formData.category,
-    price: Number(formData.Price),              // غيّر الاسم هنا
-    quantity: Number(formData.quantity),
-    estimated_DT: Number(formData.deliveryDays), // غيّر الاسم هنا
-    image: formData.image || undefined,
-    _id: initialData?._id,
+    name: '',
+    description: '',
+    category: '',
+    Price: '',
+    quantity: '',
+    deliveryDays: '',
+    image: '',
+    _id: null,
   });
 
-  onClose();
-};
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || '',
+        description: initialData.description || '',
+        category: initialData.category || '',
+        Price: initialData.Price != null ? String(initialData.Price) : '',
+        quantity: initialData.quantity != null ? String(initialData.quantity) : '',
+        deliveryDays: initialData.deliveryDays != null ? String(initialData.deliveryDays) : '',
+        image: initialData.image || '',
+        _id: initialData._id,
+      });
+    }
+  }, [initialData]);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    onSubmit({
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      price: Number(formData.Price),
+      quantity: Number(formData.quantity),
+      estimated_DT: Number(formData.deliveryDays),
+      image: formData.image || undefined,
+      _id: initialData?._id,
+    });
+
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
@@ -88,44 +58,51 @@ const ProductForm = ({ onSubmit, onClose, initialData = null }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* IMAGE */}
+          {/* IMAGE URL FIELD */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Product Image
+              Product Image URL
             </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Link className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="https://example.com/image.jpg"
+                value={formData.image}
+                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                className="w-full border rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+              />
+            </div>
 
-            {!imagePreview ? (
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
-                <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <label className="cursor-pointer">
-                  <span className="text-indigo-600 font-semibold">
-                    Click to upload image
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
+            {/* PREVIEW BOX */}
+            <div className="mt-4">
+              {formData.image ? (
+                <div className="relative group">
+                  <img
+                    src={formData.image}
+                    alt="Preview"
+                    className="w-full h-48 object-cover rounded-xl border border-gray-200"
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/400x200?text=Invalid+Image+URL';
+                    }}
                   />
-                </label>
-                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 3MB</p>
-              </div>
-            ) : (
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-full h-64 object-cover rounded-xl"
-                />
-                <button
-                  type="button"
-                  onClick={removeImage}
-                  className="absolute top-3 right-3 bg-red-600 text-white p-2 rounded-full"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, image: '' })}
+                    className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-200 rounded-xl py-8 flex flex-col items-center justify-center bg-gray-50">
+                  <Package className="w-10 h-10 text-gray-300 mb-2" />
+                  <p className="text-sm text-gray-400">Paste a URL to see preview</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* FORM FIELDS */}
@@ -135,9 +112,7 @@ const ProductForm = ({ onSubmit, onClose, initialData = null }) => {
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full border rounded-lg px-4 py-3"
                 required
               />
@@ -148,9 +123,7 @@ const ProductForm = ({ onSubmit, onClose, initialData = null }) => {
               <textarea
                 rows="3"
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="w-full border rounded-lg px-4 py-3"
                 required
               />
@@ -161,9 +134,7 @@ const ProductForm = ({ onSubmit, onClose, initialData = null }) => {
               <input
                 type="text"
                 value={formData.Price}
-                onChange={(e) =>
-                  setFormData({ ...formData, Price: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, Price: e.target.value })}
                 className="w-full border rounded-lg px-4 py-3"
                 required
               />
@@ -174,40 +145,30 @@ const ProductForm = ({ onSubmit, onClose, initialData = null }) => {
               <input
                 type="text"
                 value={formData.quantity}
-                onChange={(e) =>
-                  setFormData({ ...formData, quantity: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                 className="w-full border rounded-lg px-4 py-3"
                 required
               />
             </div>
 
-            {/* CATEGORY AS STRING */}
             <div>
               <label className="block text-sm font-medium mb-2">Category</label>
               <input
                 type="text"
                 placeholder="e.g. Electronics"
                 value={formData.category}
-                onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="w-full border rounded-lg px-4 py-3"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Estimated Delivery Days
-              </label>
+              <label className="block text-sm font-medium mb-2">Estimated Delivery Days</label>
               <input
                 type="text"
-                //placeholder="e.g. 3"
                 value={formData.deliveryDays}
-                onChange={(e) =>
-                 setFormData({ ...formData, deliveryDays: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, deliveryDays: e.target.value })}
                 className="w-full border rounded-lg px-4 py-3"
                 required
               />
@@ -218,13 +179,13 @@ const ProductForm = ({ onSubmit, onClose, initialData = null }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-100 py-3 rounded-lg"
+              className="flex-1 bg-gray-100 py-3 rounded-lg hover:bg-gray-200 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 bg-indigo-600 text-white py-3 rounded-lg"
+              className="flex-1 bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
             >
               {initialData ? 'Update Product' : 'Create Product'}
             </button>

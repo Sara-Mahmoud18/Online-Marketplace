@@ -12,10 +12,7 @@ const getAllProducts = async (req, res) => {
     }
 
     const products = await Product.aggregate([
-      // Products in stock
       { $match: { quantity: { $gt: 0 } } },
-
-      // Join seller
       {
         $lookup: {
           from: "sellers",
@@ -25,71 +22,32 @@ const getAllProducts = async (req, res) => {
         },
       },
       { $unwind: "$seller" },
-
-      // Seller location filter
       { $match: { "seller.location": buyer.location } },
-
-      // Lookup delivered orders for this buyer & product
       {
         $lookup: {
           from: "orders",
-          let: {
-            productId: "$_id",
-            buyerId: buyer._id,
-          },
+          let: { productId: "$_id", buyerId: buyer._id },
           pipeline: [
-            // Match buyer
             {
               $match: {
                 $expr: {
-                  $eq: ["$B_ID", "$$buyerId"],
-                },
-              },
-            },
-
-            // Match delivered only (CORRECT field name)
-            {
-              $match: {
-                Status: "Delivered",
-              },
-            },
-
-            // Flatten Product array: [[ObjectId]] → [ObjectId]
-            {
-              $addFields: {
-                flatProducts: {
-                  $reduce: {
-                    input: "$Product",
-                    initialValue: [],
-                    in: { $concatArrays: ["$$value", "$$this"] },
-                  },
-                },
-              },
-            },
-
-            // Check if current product exists in flattened array
-            {
-              $match: {
-                $expr: {
-                  $in: ["$$productId", "$flatProducts"],
-                },
-              },
-            },
+                  $and: [
+                    { $eq: ["$B_ID", "$$buyerId"] },
+                    { $eq: ["$Status", "Delivered"] },
+                    { $in: ["$$productId", "$Product"] } // Fixed: Simplified for flat array
+                  ]
+                }
+              }
+            }
           ],
           as: "previousOrders",
         },
       },
-
-      // orderedBefore flag
       {
         $addFields: {
-          orderedBefore: {
-            $gt: [{ $size: "$previousOrders" }, 0],
-          },
+          orderedBefore: { $gt: [{ $size: "$previousOrders" }, 0] },
         },
       },
-
-      // Cleanup
       {
         $project: {
           seller: 0,

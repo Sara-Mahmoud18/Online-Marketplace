@@ -43,10 +43,13 @@ const OrderCard = ({ order, flagSeller }) => {
           </div>
           <hr className='pb-2' />
           <p className="text-sm text-gray-600">Total Price: ${order.total_price}</p>
-          <p className="text-sm text-gray-600">Created Date: {order.Created_Date}</p>
-          {order.Delivery_Date !== null && (
+          <p className="text-sm text-gray-600">
+            Created Date: {order.Created_Date ? new Date(order.Created_Date).toLocaleDateString() : "N/A"}
+          </p>
+
+          {order.Delivery_Date && (
             <p className="text-sm text-gray-600">
-              Delivery Date: {order.Delivery_Date}
+              Delivery Date: {new Date(order.Delivery_Date).toLocaleDateString()}
             </p>
           )}
         </div>

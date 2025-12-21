@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Order from "../models/orderModel.js";
 import Buyer from "../models/buyerModel.js";
-import Product from "../models/productModel.js"; // 🔴 REQUIRED
+import Product from "../models/productModel.js";
 
 /**
  * GET /seller/orders
@@ -9,49 +9,31 @@ import Product from "../models/productModel.js"; // 🔴 REQUIRED
 export const getSellerOrders = async (req, res) => {
   try {
     const sellerId = req.sellerId;
-    console.log("sellerId:", sellerId);
 
     if (!sellerId) {
       return res.status(401).json({ message: "Unauthorized: sellerId missing" });
     }
 
-    const orders = await Order.find({ S_ID: sellerId }).lean();
+    // 1. Use .populate to automatically fetch Buyer and Product details
+    const orders = await Order.find({ S_ID: sellerId })
+      .populate("B_ID", "username")        // Get buyer name
+      .populate("Product", "name price")   // Get product name and price
+      .lean();
 
-    const ordersWithBuyer = await Promise.all(
-      orders.map(async (order) => {
-        // ---------------- Buyer ----------------
-        let buyerUsername = "Unknown";
-        if (order.B_ID && mongoose.Types.ObjectId.isValid(order.B_ID)) {
-          const buyer = await Buyer.findById(order.B_ID).select("username");
-          if (buyer) buyerUsername = buyer.username;
-        }
+    // 2. Format the data to match what your frontend expects
+    const formattedOrders = orders.map(order => ({
+      ...order,
+      buyerUsername: order.B_ID?.username || "Unknown",
+      // Map products so you have a clean list
+      products: order.Product || [] 
+    }));
 
-        // ---------------- Products (array of arrays) ----------------
-        const products = await Promise.all(
-          order.Product.map(async (prodArray) =>
-            Promise.all(
-              prodArray.map(async (prodId) =>
-                Product.findById(prodId).select("name price")
-              )
-            )
-          )
-        );
-
-        return {
-          ...order,
-          products,
-          buyerUsername
-        };
-      })
-    );
-
-    res.json(ordersWithBuyer);
+    res.json(formattedOrders);
   } catch (err) {
     console.error("Error in getSellerOrders:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-
 
 /**
  * PUT /seller/orders/:orderId/status
@@ -62,33 +44,34 @@ export const updateOrderStatus = async (req, res) => {
     const { status } = req.body;
     const sellerId = req.sellerId;
 
-    if (!sellerId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+    if (!sellerId) return res.status(401).json({ message: "Unauthorized" });
 
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
-      return res.status(400).json({ message: "Invalid order ID" });
-    }
+    // 1. Find the current order first to check its existing status
+    const existingOrder = await Order.findOne({ _id: orderId, S_ID: sellerId });
 
-    const allowed = ["Pending", "Shipped", "Delivered"];
-    if (!allowed.includes(status)) {
-      return res.status(400).json({ message: "Invalid status" });
-    }
-
-    // 🔴 MUST update "Status" (capital S)
-    const order = await Order.findOneAndUpdate(
-      { _id: orderId, S_ID: sellerId },
-      { Status: status },
-      { new: true }
-    );
-
-    if (!order) {
+    if (!existingOrder) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    res.json({ message: "Order updated", order });
+    // 2. DISABLE changing status if it's already "Delivered"
+    if (existingOrder.Status === "Delivered") {
+      return res.status(400).json({ message: "Delivered orders cannot be changed." });
+    }
+
+    // 3. Logic for setting Delivery Date
+    const updateData = { Status: status };
+    if (status === "Delivered") {
+      updateData.Delivery_Date = new Date(); // Set current date
+    }
+
+    const updatedOrder = await Order.findOneAndUpdate(
+      { _id: orderId, S_ID: sellerId },
+      updateData,
+      { new: true }
+    );
+
+    res.json({ message: "Order updated", order: updatedOrder });
   } catch (err) {
-    console.error("Error in updateOrderStatus:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
