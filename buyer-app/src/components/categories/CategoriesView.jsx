@@ -162,14 +162,10 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
             <strong>Available:</strong> {product.quantity} units
           </p>
 
-          <p className="mb-4 text-gray-600">
+          <p className="mb-4">
             <strong>Delivered in:</strong> {product.estimated_DT} days
           </p>
 
-
-          <p className="mb-4">
-            <strong>Available:</strong> {product.quantity}
-          </p>
 
           <input
             type="number"
