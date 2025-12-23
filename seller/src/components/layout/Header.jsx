@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Menu, Bell, Search, User, Store, Settings } from "lucide-react";
+import { Menu, User, Store, Settings } from "lucide-react";
 
 const Header = ({ setIsOpen, setCurrentView, sellerName: propSellerName }) => {
   const [sellerName, setSellerName] = useState(propSellerName || "Seller");
@@ -94,24 +94,8 @@ const Header = ({ setIsOpen, setCurrentView, sellerName: propSellerName }) => {
           </div>
         </div>
 
-        {/* Right Section: Search + Notifications + Profile */}
+        {/* Profile */}
         <div className="flex items-center space-x-3">
-          {/* Search Bar (hidden on mobile) */}
-          <div className="hidden md:flex items-center bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 space-x-2 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all duration-200 focus-within:border-indigo-500 focus-within:bg-white focus-within:shadow-md focus-within:shadow-indigo-100">
-            <Search className="w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search orders, products..."
-              className="bg-transparent outline-none text-sm text-slate-700 placeholder-slate-400 w-40 lg:w-60"
-            />
-          </div>
-
-          {/* Notification Bell */}
-          <button className="relative p-2.5 rounded-xl hover:bg-gradient-to-br hover:from-indigo-50 hover:to-purple-50 transition-all duration-200 group">
-            <Bell className="w-5 h-5 text-slate-600 group-hover:text-indigo-600 transition-colors" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white animate-pulse"></span>
-          </button>
-
           {/* Profile Section with Dropdown */}
           <div className="flex items-center gap-2 group relative">
             <div className="text-right hidden md:block">
