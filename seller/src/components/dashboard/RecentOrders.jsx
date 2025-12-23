@@ -33,8 +33,8 @@ const RecentOrders = ({ orders }) => {
                   </p>
 
                   <p className="text-sm text-gray-600">
-  Buyer: {order.buyerUsername ?? order.B_ID ?? "Unknown"}
-</p>
+                    Buyer: {order.buyerUsername ?? order.B_ID ?? "Unknown"}
+                  </p>
                   <p className="text-xs text-gray-400">
                     {order.createdDate
                       ? new Date(order.createdDate).toLocaleDateString()
