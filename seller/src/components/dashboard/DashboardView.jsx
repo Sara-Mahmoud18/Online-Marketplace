@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import RecentOrders from './RecentOrders';
 import { 
@@ -13,7 +14,7 @@ import {
   MoreVertical
 } from 'lucide-react'; 
 
-const DashboardView = ({ products, orders, categories }) => {
+const DashboardView = ({ products, orders, categories, setCurrentView }) => {
   const activeOrders = orders.filter(o => o.Status !== 'Delivered').length;
   const deliveredOrders = orders.filter(o => o.Status === 'Delivered').length;
   
@@ -25,7 +26,6 @@ const DashboardView = ({ products, orders, categories }) => {
   const [sellerFlags, setSellerFlags] = useState(0);
   const [monthlyRevenue, setMonthlyRevenue] = useState(0);
   const [dailyRevenue, setDailyRevenue] = useState(0);
-  const [growthPercentage, setGrowthPercentage] = useState(12.5);
 
   useEffect(() => {
     const flagsCount = parseInt(localStorage.getItem("sellerFlagsCount") || 0, 10);
@@ -83,6 +83,9 @@ const DashboardView = ({ products, orders, categories }) => {
   };
 
   const weeklyTrend = getWeeklyTrend();
+
+  // Find maximum revenue for the week to calculate bar percentages
+  const maxRevenue = Math.max(...weeklyTrend.map(d => d.revenue), 1); // Use 1 as minimum to avoid division by zero
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 md:p-8">
@@ -201,15 +204,6 @@ const DashboardView = ({ products, orders, categories }) => {
                 <DollarSign className="w-8 h-8 text-green-600" />
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Monthly Growth</span>
-                <span className="font-bold text-green-600 flex items-center gap-1">
-                  <ArrowUpRight className="w-4 h-4" />
-                  +{growthPercentage}%
-                </span>
-              </div>
-            </div>
           </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
@@ -251,24 +245,28 @@ const DashboardView = ({ products, orders, categories }) => {
             </div>
             
             <div className="space-y-4">
-              {weeklyTrend.map((day, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700 w-16">{day.day}</span>
-                  <div className="flex-1 mx-4">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-500"
-                        style={{ 
-                          width: `${Math.min(100, (day.revenue / Math.max(...weeklyTrend.map(d => d.revenue)) || 1) * 100)}%` 
-                        }}
-                      ></div>
+              {weeklyTrend.map((day, index) => {
+                // Calculate percentage for the bar (minimum 3% for visibility when revenue is 0)
+                const percentage = maxRevenue > 0 ? 
+                  Math.max(3, (day.revenue / maxRevenue) * 100) : 3;
+                
+                return (
+                  <div key={index} className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700 w-16">{day.day}</span>
+                    <div className="flex-1 mx-4">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
                     </div>
+                    <span className="text-sm font-bold text-gray-900 w-16 text-right">
+                      ${day.revenue.toFixed(2)}
+                    </span>
                   </div>
-                  <span className="text-sm font-bold text-gray-900 w-16 text-right">
-                    ${day.revenue.toFixed(2)}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             <div className="mt-6 pt-6 border-t border-gray-100">
@@ -346,7 +344,10 @@ const DashboardView = ({ products, orders, categories }) => {
                 <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
                 <p className="text-sm text-gray-500">Latest customer orders</p>
               </div>
-              <button className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm">
+              <button 
+                onClick={() => setCurrentView("orders")}
+                className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg text-sm"
+              >
                 View All Orders
               </button>
             </div>
@@ -363,7 +364,7 @@ const DashboardView = ({ products, orders, categories }) => {
               <div>
                 <h4 className="text-sm font-bold text-gray-700">Avg. Order Value</h4>
                 <p className="text-2xl font-bold text-gray-900 mt-1">
-                  ${orders.length > 0 ? (totalEarnings / deliveredOrders).toFixed(2) : '0.00'}
+                  ${deliveredOrders > 0 ? (Number(totalEarnings) / deliveredOrders).toFixed(2) : '0.00'}
                 </p>
               </div>
               <BarChart3 className="w-10 h-10 text-blue-600 opacity-50" />
