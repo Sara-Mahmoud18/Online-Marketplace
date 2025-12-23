@@ -13,7 +13,7 @@ import {
   MoreVertical
 } from 'lucide-react'; 
 
-const DashboardView = ({ products, orders, categories, addDemoOrder }) => {
+const DashboardView = ({ products, orders, categories }) => {
   const activeOrders = orders.filter(o => o.Status !== 'Delivered').length;
   const deliveredOrders = orders.filter(o => o.Status === 'Delivered').length;
   
@@ -352,7 +352,7 @@ const DashboardView = ({ products, orders, categories, addDemoOrder }) => {
             </div>
           </div>
           <div className="p-6">
-            <RecentOrders orders={orders} addDemoOrder={addDemoOrder} />
+            <RecentOrders orders={orders} />
           </div>
         </div>
 
