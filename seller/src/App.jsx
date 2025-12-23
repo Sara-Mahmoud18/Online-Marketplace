@@ -7,6 +7,7 @@ import OrdersView from "./components/orders/OrdersView";
 import FlaggedView from "./components/flagged/FlaggedView";
 import AuthPage from "./components/dashboard/login_seller";
 import ProfilePage from "./components/dashboard/ProfilePage";
+import "./App.css";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -77,7 +78,6 @@ const App = () => {
     const data = await res.json();
     setOrders(Array.isArray(data) ? data : []);
   };
-
 
   // ================= FLAGGED BUYERS =================
   const fetchFlaggedBuyers = async (token) => {
@@ -191,7 +191,10 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header setIsOpen={setIsSidebarOpen} />
+      <Header setIsOpen={setIsSidebarOpen}
+       setCurrentView={setCurrentView}
+
+       />
 
       <Sidebar
         isOpen={isSidebarOpen}
@@ -201,7 +204,7 @@ const App = () => {
       />
 
       <div className="pt-20 lg:ml-64 min-h-screen">
-        <main className="max-w-7xl mx-auto p-6">
+        <main className="w-full p-6">
           {renderView()}
         </main>
       </div>

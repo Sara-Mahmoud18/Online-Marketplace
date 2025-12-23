@@ -1,4 +1,3 @@
-// App.jsx
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -110,7 +109,11 @@ const App = () => {
                 const data = await res.json();
                 setlog(true);
                 setID(data.user.id);
-                setLoggedUser(data.user); 
+                setLoggedUser(data.user);
+                
+                // Store buyer data in localStorage for Header component
+                localStorage.setItem('buyerData', JSON.stringify(data.user));
+                
                 return { success: true, data };
             } else {
                 const errData = await res.json();
@@ -133,9 +136,11 @@ const App = () => {
                 const data = await res.json();
                 setlog(true);
                 setID(data.user.id);
-                // console.log("user:",data.user.flagCount);
-                setLoggedUser(data.user); 
-                // console.log("user2:",loggedUser);
+                setLoggedUser(data.user);
+                
+                // Store buyer data in localStorage for Header component
+                localStorage.setItem('buyerData', JSON.stringify(data.user));
+                
                 return { success: true, data };
             } else {
                 const errData = await res.json();
@@ -150,17 +155,18 @@ const App = () => {
         setlog(false);
         setID("");
         setLoggedUser(null);
+        
+        // Clear localStorage data
+        localStorage.removeItem('buyerData');
+        
         return true;
     }
 
     const handleCompleteOrder = async (sellerId, sellerItems) => {
         const nowISO = new Date().toISOString();
 
-        // 1. Prepare the Data Arrays
         const productsArray = sellerItems.map((item) => item.Product);
         const quantitiesArray = sellerItems.map((item) => Number(item.quantity) || 1);
-
-        // Calculate total price based on the items for this specific seller
         const totalPrice = sellerItems.reduce(
             (sum, item) => sum + (Number(item.price) * Number(item.quantity) || 0),
             0
@@ -178,8 +184,6 @@ const App = () => {
         };
 
         try {
-            // STEP 1: Create the Order in the database
-            // This will trigger your backend logic to check and decrement quantity
             const orderResponse = await fetch(`http://localhost:5000/api/orders`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -189,13 +193,8 @@ const App = () => {
             const orderData = await orderResponse.json();
 
             if (!orderResponse.ok) {
-                // If the backend returned an error (like "Insufficient quantity")
                 throw new Error(orderData.message || "Failed to create order");
             }
-
-            // STEP 2: Delete items from the Cart database
-            // We use a loop or a bulk delete endpoint. 
-            // Here, we loop through the items for this seller to delete them by ID.
             fetch(`http://localhost:5000/api/cart/${_id}/seller/${sellerId}`, {
                 method: "DELETE",
             })
@@ -203,14 +202,7 @@ const App = () => {
                 .then(data => setCart(data))
                 .catch(err => console.log(err));
 
-            // STEP 3: Update local UI State
-            // Add the new order to the orders list
             setOrders(prev => [...prev, orderData]);
-
-            // Remove only the items belonging to this seller from the local cart
-            // setCart(prev =>
-            //     prev.filter(it => it.S_ID !== sellerId && String(it.S_ID) !== String(sellerId))
-            // );
 
             alert("Order placed successfully!");
 
@@ -220,9 +212,7 @@ const App = () => {
         }
     };
 
-    // Flag a seller in backend
     const flagSeller = (sellerId, reason) => {
-        // console.log("Flagging seller:", sellerId._id, "for reason:", reason);
         fetch('http://localhost:5000/api/buyers/flagged-sellers', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -248,7 +238,12 @@ const App = () => {
     return (
         <Router>
             <div className="min-h-screen bg-gray-50">
-                <Header handleLogout={handleLogout} islogged={logged} />
+                {/* Pass buyerName prop to Header */}
+                <Header 
+                    handleLogout={handleLogout} 
+                    islogged={logged} 
+                    buyerName={loggedUser?.username || loggedUser?.email?.split('@')[0]} 
+                />
                 {logged && <Navigation />}
                 <main className="max-w-7xl mx-auto px-4 py-8">
                     <Routes>

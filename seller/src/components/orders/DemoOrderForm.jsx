@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 
 const DemoOrderForm = ({ products, onSubmit, onClose }) => {
   const [buyerEmail, setBuyerEmail] = useState('testbuyer@example.com');
-  const [selectedItems, setSelectedItems] = useState({}); // { productId: quantity }
+  const [selectedItems, setSelectedItems] = useState({});
 
   const handleQuantityChange = (productId, qty) => {
     if (qty === 0) {

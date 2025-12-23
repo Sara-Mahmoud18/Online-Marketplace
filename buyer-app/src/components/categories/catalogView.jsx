@@ -17,7 +17,6 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
     );
   }
 
-  /* ---------------- STATE ---------------- */
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
@@ -28,7 +27,6 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
   const count = product.number_rating || 0;
   const averageRating = count === 0 ? 0 : sum / count;
 
-  /* ---------------- FETCH COMMENTS ---------------- */
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -45,7 +43,6 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
     fetchComments();
   }, [productId]);
 
-  /* ---------------- RATING ---------------- */
   const handleRatingSubmit = async () => {
     if (rating === 0) return alert("Please select a rating");
 
@@ -64,7 +61,6 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
     }
   };
 
-  /* ---------------- COMMENT ---------------- */
   const handleCommentSubmit = async () => {
     if (!comment.trim()) return;
 
@@ -94,7 +90,6 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
     }
   };
 
-  /* ---------------- CART ---------------- */
   const onAddToCart = () => {
     if (quantity > product.quantity) {
       return alert(`Max quantity is ${product.quantity}`);
@@ -114,7 +109,6 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
     alert("Added to cart");
   };
 
-  /* ---------------- NORMALIZE FOR AI ---------------- */
   const normalizedComments = comments.map(c => ({
     text: c.text,
     date: c.date,
@@ -156,8 +150,12 @@ const ProductDetailPage = ({ buyerId, products, onAddToCartHandler }) => {
 
           <p className="mb-4">{product.description}</p>
 
-          <p className="mb-4">
-            <strong>Available:</strong> {product.quantity}
+          <p className="mb-2">
+            <strong>Available:</strong> {product.quantity} units
+          </p>
+
+          <p className="mb-4 text-gray-600">
+            <strong>Delivered in:</strong> {product.estimated_DT} days
           </p>
 
           <input

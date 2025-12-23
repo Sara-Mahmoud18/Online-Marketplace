@@ -1,4 +1,3 @@
-// FlaggedView.jsx
 import React, { useEffect, useState } from "react";
 import FlaggedBuyerCard from "./FlaggedBuyerCard";
 import { Flag } from "lucide-react";

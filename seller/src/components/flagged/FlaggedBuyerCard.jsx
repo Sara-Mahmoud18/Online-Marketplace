@@ -8,7 +8,6 @@ const FlaggedBuyerCard = ({ flag }) => {
         <Flag className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-900">
-            {/* Change flag.b_id to flag.buyerId */}
             {flag.buyerId?.username || "Unknown Buyer"}
           </h3>
           <p className="text-sm text-gray-600 mt-1">
